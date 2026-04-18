@@ -1,4 +1,3 @@
-"use client";
 
 import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -74,10 +73,12 @@ export default async function Nodes() {
                                 </Field>
                             </CardContent>
                             <CardFooter>
-                                <Button variant="outline" size="sm" className="w-full">
-                                    Details
-                                    <ArrowUpRight />
-                                </Button>
+                                <Link href={`/dashboard/nodes/${instance.instance_id}`}>
+                                    <Button variant="outline" size="sm" className="w-full">
+                                        Details
+                                        <ArrowUpRight />
+                                    </Button>
+                                </Link>
                             </CardFooter>
                         </Card>
                     )

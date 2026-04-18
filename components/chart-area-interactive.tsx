@@ -196,13 +196,13 @@ export function ChartAreaInteractive() {
             </SelectTrigger>
             <SelectContent className="rounded-xl">
               <SelectItem value="90d" className="rounded-lg">
-                Last 3 months
+                Last 3 days
               </SelectItem>
               <SelectItem value="30d" className="rounded-lg">
-                Last 30 days
+                Last 1 day
               </SelectItem>
               <SelectItem value="7d" className="rounded-lg">
-                Last 7 days
+                Last 1 hour
               </SelectItem>
             </SelectContent>
           </Select>
