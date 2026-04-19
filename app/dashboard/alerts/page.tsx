@@ -11,8 +11,23 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import {ArrowUpRight , RefreshCcw} from "lucide-react"
 import Link from "next/link";
-import data from "../data.json"
+import CDataTable from "@/components/c-data-table";
 
+
+
+const data = [
+    {   "alert_id"  : "798b1dc0-ac63-49ba-b3d7-1bc35eb4b1d1", 
+        "send_time" : "10:49:43" , 
+        "send_date" : "2026-04-19",  
+        "status" : "UNSEEN"  , 
+        "content" : "Alert", 
+        "severity" : "HIGH", 
+        "anomaly_id"  : "798b1dc0-ac63-49ba-b3d7-1bc35eb4b1d1"
+    }
+]
+const columns = [
+    "Alert ID" , "Send Time", "Send Date" , "Status" , "Content" , "Severity" , "Anomaly ID"
+]
 
 export default function Nodes() {
     return <div className="mx-8"> 
@@ -36,8 +51,8 @@ export default function Nodes() {
                 
             </div>
         </div>
-        <div className="mt-4">
-            <DataTable data={data}/>
+        <div className="mt-4 mx-6">
+            <CDataTable data={data} columns={columns}/>
         </div>
     </div>; 
 }

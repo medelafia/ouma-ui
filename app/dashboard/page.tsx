@@ -5,9 +5,9 @@ import data from "./data.json"
 
 
 export default function Page() { 
-    return <div className="flex flex-1 flex-col gap-2">
+    return <div className="flex flex-1 flex-col gap-6">
         <SectionCards/>
-        <div className="px-4 lg:px-6">
+        <div className="px-4 lg:px-6 ">
             <ChartAreaInteractive />
         </div>
     </div>

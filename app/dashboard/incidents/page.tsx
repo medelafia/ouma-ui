@@ -2,18 +2,18 @@
 
 import { DataTable } from "@/components/data-table";
 import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import {ArrowUpRight , RefreshCcw} from "lucide-react"
 import Link from "next/link";
-import data from "../data.json"; 
+import CDataTable from "@/components/c-data-table";
 
 
+
+const data = [{
+    "incident_id" : "798b1dc0-ac63-49ba-b3d7-1bc35eb4b1d1" , 
+    "incident_time" : "2026-04-19" , 
+    "incident_date" : "10:49:43" , 
+    "description" : "Incidents occure after" , 
+    "alert" : "798b1dc0-ac63-49ba-b3d7-1bc35eb4b1d1"
+}]
 export default function Nodes() {
     return <div className="mx-8"> 
         <div className="flex justify-between items-center">
@@ -37,7 +37,7 @@ export default function Nodes() {
             </div>
         </div>
         <div className="mt-4">
-            <DataTable data={data}/>
+            <CDataTable data={data} columns={['Incident ID', 'Incident Time' , 'Incident Date' , 'description' , 'Alert']}/>
         </div>
     </div>; 
 }

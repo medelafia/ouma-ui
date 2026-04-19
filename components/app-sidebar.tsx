@@ -125,14 +125,6 @@ const data = {
         <Settings2Icon
         />
       ),
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: (
-        <CircleHelpIcon
-        />
-      ),
     }
   ]
 }
@@ -145,12 +137,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
+              className="data-[slot=sidebar-menu-button]:p-1.5! text-2xl font-bold"
             >
-              <a href="#">
-                <TowerControl className="size-5!" />
-                <span className="text-bold font-semibold ">Ouma</span>
-              </a>
+              <h1 className="flex items-center">
+                <TowerControl className="size-8!" />
+                Ouma
+              </h1>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

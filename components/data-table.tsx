@@ -124,6 +124,12 @@ function DragHandle({ id }: { id: number }) {
   )
 }
 
+
+const getColumns = ( columns : {} ) => { 
+  const cols = [] ; 
+
+}
+
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
     id: "drag",

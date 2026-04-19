@@ -12,10 +12,20 @@ import Link from "next/link";
 
 
 
+
+
 export default async function Nodes() {
-    const data = await fetch("http://localhost:8000/api/v1/instances/all")
-    const instances = await data.json() 
-    
+    let instances : any = []
+
+    fetch("http://localhost:8000/api/v1/instances/all" , {cache: "no-store",})
+    .then(res => {
+        return res.json() 
+    })
+    .then(data => {
+        instances = data 
+    })
+    .catch()
+
     return <div className="mx-8"> 
         <div className="flex justify-between items-center">
             <Breadcrumb>
@@ -46,7 +56,8 @@ export default async function Nodes() {
         </div>
         <div className="grid grid-cols-3 my-8 gap-8">
             {   
-                instances.map( 
+                instances.length > 0 
+                ? instances.map( 
                 ( instance : {instance_id : String , port : number , ip_address : String }) => 
                     ( 
                         <Card size="sm" className="mx-auto w-full max-w-sm">
@@ -82,8 +93,8 @@ export default async function Nodes() {
                             </CardFooter>
                         </Card>
                     )
-                )
-            
+                ) :
+                <div>No Instances</div>
             }
         </div>
     </div>; 
