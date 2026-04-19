@@ -1,9 +1,11 @@
-import { Badge } from "@/components/ui/badge";
+
+import PredictionCharts from "@/components/prediction-charts";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { RefreshCcw, TrendingUpIcon } from "lucide-react";
 import Link from "next/link";
+
 
 export default async function Page({ 
   params 
@@ -44,7 +46,10 @@ export default async function Page({
                 </Button>
             </div>
         </div>
-        <div className="mt-4 grid grid-cols-4 gap-4">
+        <div className="my-4 grid grid-cols-2 gap-4 mx-6">
+          <PredictionCharts />
+        </div>
+        <div className="mt-4 grid grid-cols-4 gap-4 mx-6">
           {
             nodeMetrics.map(
               (metric : any) => (
