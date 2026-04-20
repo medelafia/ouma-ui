@@ -1,5 +1,5 @@
 "use client"
-import { FormEvent } from 'react'
+import { FormEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
@@ -10,20 +10,37 @@ import { TowerControl } from 'lucide-react'
  
 export default function Page() {
   const router = useRouter()
- 
+  const [ error , setError ] = useState("")
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
  
     const formData = new FormData(event.currentTarget)
     const username = formData.get('username')
     const password = formData.get('password')
-    console.log(username)
+    
 
- 
-    if (username == "admin" && password == "admin") {
-      router.push('/dashboard')
-    } else {
-      // Handle errors
+    if(username?.toString().trim() == "" || password?.toString().trim() == "") { 
+      setError(val => "The username or password should be not empty") 
+      return 
+    }else { 
+      
+      fetch("http://localhost:8000/token" , {
+        method : "POST" ,
+        body : formData
+      })
+      .then(res => {
+        if(res.ok) {
+          console.log(res)
+          return res.json()
+        }else {
+          setError("Cannot authenticate now")
+        }
+      }).then(data=>{ 
+        localStorage.setItem("token" , data.access_token)
+        router.push("/dashboard")
+      }).catch(err => {
+        console.log(err)
+      })
     }
   }
  
