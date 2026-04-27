@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import {ArrowUpRight , RefreshCcw} from "lucide-react"
 import Link from "next/link";
 import CDataTable from "@/components/c-data-table";
+import { useEffect, useState } from "react";
 
 const data = [
   {
@@ -24,6 +25,26 @@ const data = [
 ]
 
 export default function Nodes() {
+    const [anomalies , setAnomalies] : any = useState(undefined) 
+    const [loading , setLoading] = useState(true)
+    const [ error , setError] : any = useState(undefined)
+
+    useEffect(() => { 
+        fetch("http://localhost:8000/api/v1/anomalies/all")
+        .then(res => {
+            if(res.ok) return res.json()
+            else {
+                setError("Cannot load data!")
+                setLoading(false)
+            }
+        }).then(data => {
+            setAnomalies(data)
+            setLoading(false)
+        }).catch((err : Error) => {
+            setError(err.message)
+            setLoading(false)
+        })
+        } , [] )
     return <div className="mx-8"> 
         <div className="flex justify-between items-center">
             <Breadcrumb>
@@ -46,7 +67,7 @@ export default function Nodes() {
             </div>
         </div>
         <div className="mt-4">
-            <CDataTable data={data} columns={["Anomaly Id" , 'Detection Date' , 'Detection Time' , "Duration" , "Instance Id"]}/>
+            <CDataTable loading={false} data={data} columns={["Anomaly Id" , 'Detection Date' , 'Detection Time' , "Duration" , "Instance Id"]}/>
         </div>
     </div>; 
 }

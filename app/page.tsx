@@ -6,12 +6,14 @@ import { cn } from '@/lib/utils'
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { TowerControl } from 'lucide-react'
+import { AlertCircleIcon, TowerControl } from 'lucide-react'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
  
 export default function Page() {
   const router = useRouter()
   const [ error , setError ] = useState("")
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    setError("")
     event.preventDefault()
  
     const formData = new FormData(event.currentTarget)
@@ -20,11 +22,10 @@ export default function Page() {
     
 
     if(username?.toString().trim() == "" || password?.toString().trim() == "") { 
-      setError(val => "The username or password should be not empty") 
+      setError("The username or password should be not empty") 
       return 
     }else { 
-      
-      fetch("http://localhost:8000/token" , {
+      fetch("http://localhost:8000/api/v1/auth/token" , {
         method : "POST" ,
         body : formData
       })
@@ -32,14 +33,17 @@ export default function Page() {
         if(res.ok) {
           console.log(res)
           return res.json()
-        }else {
-          setError("Cannot authenticate now")
+        } else if(res.status == 400) {
+          setError("Username or password not correct")
+          return 
         }
       }).then(data=>{ 
-        localStorage.setItem("token" , data.access_token)
-        router.push("/dashboard")
-      }).catch(err => {
-        console.log(err)
+        if(data != undefined) {
+          localStorage.setItem("token" , data.access_token)
+          router.push("/dashboard")
+        }
+      }).catch((err: Error )=>{
+        setError(err.message)
       })
     }
   }
@@ -48,7 +52,15 @@ export default function Page() {
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6 items-center" >
-          
+          { error != "" &&
+            <Alert variant="destructive" className="max-w-md">
+              <AlertCircleIcon />
+              <AlertTitle>Login failed</AlertTitle>
+              <AlertDescription>
+                {error}
+              </AlertDescription>
+            </Alert>
+          }
           <h1 className='flex justify-center text-2xl font-bold items-bottom px-4 rounded-lg border py-2 w-100'>
             <TowerControl className="size-7! mr-2" />
             Ouma

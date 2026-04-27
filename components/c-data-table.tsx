@@ -9,11 +9,12 @@ import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, Pagi
 
 type Props = {
     data : any , 
-    columns : String[]
+    columns : String[] ,  
+    loading? : Boolean
 }
-export default function CDataTable({data , columns} : Props) { 
+export default function CDataTable({data , columns , loading} : Props) { 
     return (
-        <div >
+        <div>
             <div className="rounded-lg border">
                 <Table >
                     <TableHeader>
@@ -24,36 +25,43 @@ export default function CDataTable({data , columns} : Props) {
                     </TableHeader>
                     <TableBody>
                         {
-                        data.map(
-                            (row : any , key : any) => 
-                                <TableRow key={key}>
-                                    {
-                                        columns.map(
-                                            (column) => (
-                                                <TableCell className="font-medium">{row[column.toLowerCase().replace(" " , "_")]}</TableCell>
+                            loading 
+                            ?
+                            <TableRow>
+                                <TableCell colSpan={columns.length + 1}>
+                                    loading
+                                </TableCell>
+                            </TableRow>
+                            :
+                            data?.map((row : any , key : any) => 
+                                    <TableRow key={key}>
+                                        {
+                                            columns.map(
+                                                (column) => (
+                                                    <TableCell className="font-medium">{row[column.toLowerCase().replace(" " , "_")]}</TableCell>
+                                                )
                                             )
-                                        )
 
-                                    }
-                                    <TableCell className="text-right">
-                                        <DropdownMenu>
-                                        <DropdownMenuTrigger asChild ><Button variant="ghost" size="icon" className="size-8"><MoreHorizontalIcon /><span className="sr-only">Open menu</span></Button></DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem>Edit</DropdownMenuItem>
-                                            <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                                            <DropdownMenuSeparator />
-                                            <DropdownMenuItem variant="destructive">
-                                            Delete
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                        
-                            )                    
+                                        }
+                                        <TableCell className="text-right">
+                                            <DropdownMenu>
+                                            <DropdownMenuTrigger asChild ><Button variant="ghost" size="icon" className="size-8"><MoreHorizontalIcon /><span className="sr-only">Open menu</span></Button></DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem>Edit</DropdownMenuItem>
+                                                <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem variant="destructive">
+                                                Delete
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                )                 
                         }
                     </TableBody>
                 </Table>
+
             </div>
             
             <Pagination className="mt-6">

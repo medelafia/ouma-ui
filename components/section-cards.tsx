@@ -11,14 +11,14 @@ import {
 } from "@/components/ui/card"
 import { TrendingUpIcon, TrendingDownIcon } from "lucide-react"
 
-export function SectionCards() {
+export function SectionCards({kpis} : { kpis : any}) {
   return (
     <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Total Nodes</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            2
+            {kpis.instances}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
@@ -43,7 +43,7 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Total Alerts</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            100
+            {kpis.alerts.count}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
@@ -67,7 +67,7 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Total Incidents</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            100
+            {kpis.incidents.count}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
@@ -89,7 +89,7 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Total Anomalies</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            200
+            {kpis.anomalies.count}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">

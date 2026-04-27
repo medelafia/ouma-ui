@@ -1,9 +1,28 @@
+"use client";
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import type { ReactNode } from 'react'
+import { useRouter } from "next/navigation";
+import { useEffect, type ReactNode } from 'react'
+import { Toaster } from "sonner";
 
 export default function Page( {children} : { children : ReactNode }) {
+  const router = useRouter()
+
+  useEffect(() => {   
+    fetch("http://localhost:8000/api/v1/users/me" , 
+      {
+        headers : {
+        "Authorization" : `Bearer ${localStorage.getItem("token")!}`
+        }
+      }
+    )
+    .then(data => {
+      /*if(data.status == 401) { 
+        router.push("/")
+      }*/
+    }) 
+  } , [])
   return (
     <SidebarProvider
       style={
@@ -13,6 +32,7 @@ export default function Page( {children} : { children : ReactNode }) {
         } as React.CSSProperties
       }
     >
+      <Toaster />
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />

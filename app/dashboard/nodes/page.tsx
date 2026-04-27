@@ -1,4 +1,4 @@
-
+"use client";
 import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -9,23 +9,34 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import {ArrowUpRight , RefreshCcw} from "lucide-react"
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 
 
 
 
-export default async function Nodes() {
-    let instances : any = []
+export default function Nodes() {
+    const [instances , setInstances] = useState([])
+    const fetchInstances = () => {
+        fetch("http://localhost:8000/api/v1/instances/all" , 
+            {
+                headers : {
+                    "Authorization" : `Bearer ${localStorage.getItem("token")!}`
+                }
+            }
+        )
+        .then(res => {
+            return res.json() 
+        })
+        .then(data => {
+            setInstances(data)
+        })
+        .catch()
+    }
 
-    fetch("http://localhost:8000/api/v1/instances/all" , {cache: "no-store",})
-    .then(res => {
-        return res.json() 
-    })
-    .then(data => {
-        instances = data 
-    })
-    .catch()
-
+    useEffect(() => {
+        fetchInstances()
+    }, []) 
     return <div className="mx-8"> 
         <div className="flex justify-between items-center">
             <Breadcrumb>
@@ -58,9 +69,9 @@ export default async function Nodes() {
             {   
                 instances.length > 0 
                 ? instances.map( 
-                ( instance : {instance_id : String , port : number , ip_address : String }) => 
+                ( instance : {instance_id : String , port : number , ip_address : String } , key : any) => 
                     ( 
-                        <Card size="sm" className="mx-auto w-full max-w-sm">
+                        <Card size="sm" className="mx-auto w-full max-w-sm" key={key}>
                             <CardHeader>
                                 <CardTitle>#ID : {instance.instance_id}</CardTitle>
                                 <CardDescription>

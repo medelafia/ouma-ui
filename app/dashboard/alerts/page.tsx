@@ -1,17 +1,9 @@
 "use client";
 
-import { DataTable } from "@/components/data-table";
 import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import {ArrowUpRight , RefreshCcw} from "lucide-react"
 import Link from "next/link";
 import CDataTable from "@/components/c-data-table";
+import { useEffect, useState } from "react";
 
 
 
@@ -30,6 +22,28 @@ const columns = [
 ]
 
 export default function Nodes() {
+    const [alerts , setAlerts ] = useState(undefined) 
+    const [loading , setLoading] = useState(true)
+    const [ error , setError] : any = useState(undefined)
+
+    useEffect(() => { 
+        fetch("http://localhost:8000/api/v1/alerts/all" , {
+            
+        })
+        .then(res => {
+            if(res.ok) return res.json()
+            else {
+                setError("Cannot load data!")
+                setLoading(false)
+            }
+        }).then(data => {
+            setAlerts(data)
+            setLoading(false)
+        }).catch((err : Error) => {
+            setError(err.message)
+            setLoading(false)
+        })
+    } , [] )
     return <div className="mx-8"> 
         <div className="flex justify-between items-center mx-6">
             <Breadcrumb>
@@ -52,7 +66,7 @@ export default function Nodes() {
             </div>
         </div>
         <div className="mt-4 mx-6">
-            <CDataTable data={data} columns={columns}/>
+            <CDataTable loading={false} data={data} columns={columns}/>
         </div>
     </div>; 
 }

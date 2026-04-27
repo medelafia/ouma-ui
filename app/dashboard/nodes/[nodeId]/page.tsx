@@ -1,4 +1,3 @@
-
 import PredictionCharts from "@/components/prediction-charts";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -10,12 +9,18 @@ import Link from "next/link";
 export default async function Page({ 
   params 
 }: { 
-  params: Promise<{ nodeId: string }> 
+  params: Promise<{ nodeId: string }>
 }) {
-  const { nodeId } = await params;
-  const data = await fetch(`http://localhost:8000/api/v1/instances/${nodeId}/metrics`)
-  const nodeMetrics = await data.json()
-
+  const {nodeId} = await params
+  const res = await fetch(`http://localhost:8000/api/v1/instances/${nodeId}/metrics`, 
+    {
+      headers : {
+        "Authorization" : `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NzEyMzg4Nn0.M6EGa_1XPFB4418JJ_fqr-Y12NDiU4pStOhGXH9SPIM`
+      }
+    }
+  )
+  const nodeMetrics = await res.json()
+  console.log(nodeMetrics)
   return <div className="mx-8"> 
         <div className="flex justify-between items-center mx-6">
             <Breadcrumb>
@@ -51,13 +56,13 @@ export default async function Page({
         </div>
         <div className="mt-4 grid grid-cols-4 gap-4 mx-6">
           {
-            nodeMetrics.map(
-              (metric : any) => (
-                 <Card className="@container/card">
+            nodeMetrics && nodeMetrics!.map(
+              (metric : any , key : any) => (
+                 <Card key={key} className="@container/card">
                   <CardHeader>
                     <CardDescription>{metric.name}</CardDescription>
                     <CardTitle className="font-semibold tabular-nums @[250px]/card:text-xl">
-                      {metric.value.data.result[0].values.at(0)[1]}
+                      {metric.value.data.result[0] ? metric.value.data.result[0].values.at(-1)[1] : 0}
                     </CardTitle>
                   </CardHeader>
                   <CardFooter className="flex-col items-start gap-1.5 text-sm">
