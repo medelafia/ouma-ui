@@ -1,8 +1,11 @@
-import { MoreHorizontalIcon } from "lucide-react";
+import { AlertCircleIcon, MoreHorizontalIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "./ui/pagination";
+import { Item, ItemContent, ItemMedia, ItemTitle } from "./ui/item";
+import { Spinner } from "./ui/spinner";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 
 
@@ -10,12 +13,23 @@ import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, Pagi
 type Props = {
     data : any , 
     columns : String[] ,  
-    loading? : Boolean
+    loading? : Boolean, 
+    error? : String
 }
-export default function CDataTable({data , columns , loading} : Props) { 
+export default function CDataTable({data , columns , loading , error} : Props) { 
+    
     return (
         <div>
-            <div className="rounded-lg border">
+            { error && 
+                <Alert variant="destructive" className="w-full my-4">
+                    <AlertCircleIcon />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>
+                        {error}
+                    </AlertDescription>
+                </Alert> 
+            } 
+            <div className="rounded-lg border px-3">
                 <Table >
                     <TableHeader>
                         <TableRow>
@@ -29,16 +43,28 @@ export default function CDataTable({data , columns , loading} : Props) {
                             ?
                             <TableRow>
                                 <TableCell colSpan={columns.length + 1}>
-                                    loading
+                                    <Item variant="muted">
+                                        <ItemMedia>
+                                            <Spinner />
+                                        </ItemMedia>
+                                        <ItemContent>
+                                            <ItemTitle className="line-clamp-1">Loading data...</ItemTitle>
+                                        </ItemContent>
+                                    </Item>
                                 </TableCell>
                             </TableRow>
-                            :
-                            data?.map((row : any , key : any) => 
+                            :( error || data?.length 
+                                ?
+                                <TableRow>
+                                    <TableCell colSpan={columns.length}>No Data Found</TableCell>
+                                </TableRow>
+                                :
+                                data?.map((row : any , key : any) => 
                                     <TableRow key={key}>
                                         {
                                             columns.map(
-                                                (column) => (
-                                                    <TableCell className="font-medium">{row[column.toLowerCase().replace(" " , "_")]}</TableCell>
+                                                (column , key) => (
+                                                    <TableCell className="font-medium" key={key}>{row[column.toLowerCase().replace(" " , "_")]}</TableCell>
                                                 )
                                             )
 
@@ -58,7 +84,8 @@ export default function CDataTable({data , columns , loading} : Props) {
                                         </TableCell>
                                     </TableRow>
                                 )                 
-                        }
+                            )
+                        }   
                     </TableBody>
                 </Table>
 

@@ -8,20 +8,18 @@ import { useEffect, useState } from "react";
 
 
 
-const data = [{
-    "incident_id" : "798b1dc0-ac63-49ba-b3d7-1bc35eb4b1d1" , 
-    "incident_time" : "2026-04-19" , 
-    "incident_date" : "10:49:43" , 
-    "description" : "Incidents occure after" , 
-    "alert" : "798b1dc0-ac63-49ba-b3d7-1bc35eb4b1d1"
-}]
+
 export default function Nodes() {
     const [incidents , setIncidents] = useState(undefined) 
     const [loading , setLoading] = useState(true)
     const [ error , setError] : any = useState(undefined)
 
     useEffect(() => { 
-        fetch("http://localhost:8000/api/v1/incidents/all")
+        fetch("http://localhost:8000/api/v1/incidents/all" , {
+            headers : { 
+                "Authorization" : `Bearer ${localStorage.getItem("token")}`
+            }
+        })
         .then(res => {
             if(res.ok) return res.json()
             else {
@@ -61,7 +59,7 @@ export default function Nodes() {
             </div>
         </div>
         <div className="mt-4">
-            <CDataTable loading={false} data={data} columns={['Incident ID', 'Incident Time' , 'Incident Date' , 'description' , 'Alert']}/>
+            <CDataTable error={error} loading={loading} data={incidents} columns={['Incident ID', 'Incident Time' , 'Incident Date' , 'description' , 'Alert']}/>
         </div>
     </div>; 
 }

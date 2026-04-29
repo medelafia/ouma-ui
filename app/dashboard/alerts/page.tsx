@@ -7,16 +7,6 @@ import { useEffect, useState } from "react";
 
 
 
-const data = [
-    {   "alert_id"  : "798b1dc0-ac63-49ba-b3d7-1bc35eb4b1d1", 
-        "send_time" : "10:49:43" , 
-        "send_date" : "2026-04-19",  
-        "status" : "UNSEEN"  , 
-        "content" : "Alert", 
-        "severity" : "HIGH", 
-        "anomaly_id"  : "798b1dc0-ac63-49ba-b3d7-1bc35eb4b1d1"
-    }
-]
 const columns = [
     "Alert ID" , "Send Time", "Send Date" , "Status" , "Content" , "Severity" , "Anomaly ID"
 ]
@@ -28,7 +18,9 @@ export default function Nodes() {
 
     useEffect(() => { 
         fetch("http://localhost:8000/api/v1/alerts/all" , {
-            
+            headers : {
+                "Authorization" : `Bearer ${localStorage.getItem("token")}`
+            }
         })
         .then(res => {
             if(res.ok) return res.json()
@@ -66,7 +58,7 @@ export default function Nodes() {
             </div>
         </div>
         <div className="mt-4 mx-6">
-            <CDataTable loading={false} data={data} columns={columns}/>
+            <CDataTable loading={loading} data={alerts} columns={columns} error={error}/>
         </div>
     </div>; 
 }

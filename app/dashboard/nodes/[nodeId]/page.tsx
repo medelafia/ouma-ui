@@ -1,25 +1,46 @@
-import PredictionCharts from "@/components/prediction-charts";
+"use client";
+import PredictionCharts, { ChartData } from "@/components/prediction-charts";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { RefreshCcw, TrendingUpIcon } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { LineStyle, RefreshCcw, TrendingUpIcon } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 
-export default async function Page({ 
-  params 
-}: { 
-  params: Promise<{ nodeId: string }>
-}) {
-  const {nodeId} = await params
-  const res = await fetch(`http://localhost:8000/api/v1/instances/${nodeId}/metrics`, 
-    {
+const chartData  : ChartData[] = [
+  { time: 1776555701 , cpu_usage_pred : 30 , cpu_usage_actual : 10 , memory_usage_pred: 20 , memory_usage_actual : 10 },
+  { time: 1776555721 , cpu_usage_pred : 17 , cpu_usage_actual : 16 , memory_usage_pred: 30 , memory_usage_actual : 81 },
+  { time: 1776555741 , cpu_usage_pred : 13 , cpu_usage_actual : 35 , memory_usage_pred: 15 , memory_usage_actual : 18 },
+] 
+export default function Page() {
+  const params = useParams<{nodeId : string}>()
+  const [nodeMetrics ,setNodeMetrics] = useState([])
+  const [loading , setLoading] = useState(true)
+  console.log(params)
+  function fetchMetrics() { 
+    setLoading(true)
+    fetch(`http://localhost:8000/api/v1/instances/${params.nodeId}/metrics`, {
       headers : {
-        "Authorization" : `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NzEyMzg4Nn0.M6EGa_1XPFB4418JJ_fqr-Y12NDiU4pStOhGXH9SPIM`
+        "Authorization" : `Bearer ${localStorage.getItem("token")}`
       }
-    }
-  )
-  const nodeMetrics = await res.json()
+    }).then(res => {
+      if(res.ok) {
+        return res.json()
+      }
+    }).then(data => {
+      setLoading(false)
+      if(data != undefined ) {
+        setNodeMetrics(data)
+      }
+    })
+  }
+
+  useEffect(() => {
+   fetchMetrics()
+  } ,  [] ) 
   console.log(nodeMetrics)
   return <div className="mx-8"> 
         <div className="flex justify-between items-center mx-6">
@@ -39,24 +60,45 @@ export default async function Page({
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
                         <BreadcrumbLink asChild>
-                            <Link href={`/dashboard/nodes/${nodeId}`} className="text-lg">{nodeId}</Link>
+                            <Link href={`/dashboard/nodes/${params.nodeId}`} className="text-lg">{params.nodeId}</Link>
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
             <div className="flex">
-                <Button variant="destructive">
+                <Button variant="destructive" onClick={fetchMetrics}>
                   Refresh
                   <RefreshCcw />
                 </Button>
             </div>
         </div>
-        <div className="my-4 grid grid-cols-2 gap-4 mx-6">
-          <PredictionCharts />
-        </div>
+        <div className="mt-4 text-3xl mx-6 flex items-center"><LineStyle className="me-4"/> <span>Node Metrics</span></div>
         <div className="mt-4 grid grid-cols-4 gap-4 mx-6">
-          {
-            nodeMetrics && nodeMetrics!.map(
+          { 
+            loading 
+            ? <>
+                <Card>
+                    <CardHeader>
+                        <Skeleton className="h-8 w-2/3" />
+                    </CardHeader>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <Skeleton className="h-8 w-2/3" />
+                    </CardHeader>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <Skeleton className="h-8 w-2/3" />
+                    </CardHeader>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <Skeleton className="h-8 w-2/3" />
+                    </CardHeader>
+                </Card>
+              </>
+            : nodeMetrics!.map(
               (metric : any , key : any) => (
                  <Card key={key} className="@container/card">
                   <CardHeader>
@@ -65,7 +107,7 @@ export default async function Page({
                       {metric.value.data.result[0] ? metric.value.data.result[0].values.at(-1)[1] : 0}
                     </CardTitle>
                   </CardHeader>
-                  <CardFooter className="flex-col items-start gap-1.5 text-sm">
+                  {/*<CardFooter className="flex-col items-start gap-1.5 text-sm">
                     <div className="line-clamp-1 flex gap-2 font-medium">
                       Trending up this month{" "}
                       <TrendingUpIcon className="size-4" />
@@ -73,10 +115,13 @@ export default async function Page({
                     <div className="text-muted-foreground">
                       Visitors for the last 6 months
                     </div>
-                  </CardFooter>
+                  </CardFooter>*/}
                 </Card>)      
               )
           }
+        </div>
+        <div className="my-4 grid grid-cols-2 gap-4 mx-6">
+          <PredictionCharts data={chartData} />
         </div>
     </div>; 
 }

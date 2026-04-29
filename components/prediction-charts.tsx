@@ -5,14 +5,13 @@ import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "
 
 
 export const description = "A multiple line chart"
-const chartData = [
-  { timestamp: 1776555701 , predicted: 186, real: 80 },
-  { timestamp: 1776556001, predicted: 305, real: 200 },
-  { timestamp: 1776556301, predicted: 237, real: 120 },
-  { timestamp: 1776556601, predicted: 73, real: 190 },
-  { timestamp: 1776556901, predicted: 209, real: 130 },
-  { timestamp: 1776557201, predicted: 214, real: 140 },
-] 
+export type ChartData = {
+        time : Number , 
+        cpu_usage_pred : Number ,
+        cpu_usage_actual : Number , 
+        memory_usage_pred : Number , 
+        memory_usage_actual : Number 
+    }
 const chartConfig = {
   predicted: {
     label: "Predicted",
@@ -23,7 +22,7 @@ const chartConfig = {
     color: "var(--chart-2)",
   },
 } satisfies ChartConfig
-export default function PredictionCharts(){ 
+export default function PredictionCharts({data} : {data : ChartData[]}){ 
     return (
         
         <>
@@ -36,7 +35,7 @@ export default function PredictionCharts(){
                     <ChartContainer config={chartConfig}>
                     <LineChart
                         accessibilityLayer
-                        data={chartData}
+                        data={data}
                         margin={{
                         left: 12,
                         right: 12,
@@ -44,7 +43,7 @@ export default function PredictionCharts(){
                     >
                         <CartesianGrid vertical={false} />
                         <XAxis
-                        dataKey="timestamp"
+                        dataKey="time"
                         tickLine={false}
                         axisLine={false}
                         tickMargin={8}
@@ -52,14 +51,14 @@ export default function PredictionCharts(){
                         />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
                         <Line
-                        dataKey="predicted"
+                        dataKey="memory_usage_pred"
                         type="monotone"
                         stroke="var(--color-predicted)"
                         strokeWidth={2}
                         dot={false}
                         />
                         <Line
-                        dataKey="real"
+                        dataKey="memory_usage_actual"
                         type="monotone"
                         stroke="var(--color-real)"
                         strokeWidth={2}
@@ -72,14 +71,14 @@ export default function PredictionCharts(){
             </Card>
                 <Card>
                 <CardHeader>
-                    <CardTitle>Memory Usage</CardTitle>
+                    <CardTitle>CPU Usage</CardTitle>
                     <CardDescription>January - June 2024</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <ChartContainer config={chartConfig}>
                     <LineChart
                         accessibilityLayer
-                        data={chartData}
+                        data={data}
                         margin={{
                         left: 12,
                         right: 12,
@@ -87,7 +86,7 @@ export default function PredictionCharts(){
                     >
                         <CartesianGrid vertical={false} />
                         <XAxis
-                        dataKey="timestamp"
+                        dataKey="time"
                         tickLine={false}
                         axisLine={false}
                         tickMargin={8}
@@ -95,14 +94,14 @@ export default function PredictionCharts(){
                         />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
                         <Line
-                        dataKey="predicted"
+                        dataKey="cpu_usage_pred"
                         type="monotone"
                         stroke="var(--color-predicted)"
                         strokeWidth={2}
                         dot={false}
                         />
                         <Line
-                        dataKey="real"
+                        dataKey="cpu_usage_actual"
                         type="monotone"
                         stroke="var(--color-real)"
                         strokeWidth={2}

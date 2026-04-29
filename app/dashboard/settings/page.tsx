@@ -4,11 +4,12 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { CircleFadingPlusIcon, Plus, Save, XIcon } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 
@@ -20,14 +21,13 @@ export default function Settings() {
         ACTIVATE_ALERTING : false
     })
     const emailToSaveRef = useRef(null)
-
-
+    const [emails , setEmails ] = useState([])
 
     function handleSave() {
         if(settings.TARGET_SERVER_HOST.trim() == "" ) { 
             
-            toast("All fields reqiered", {
-                description: "Sunday, December 03, 2023 at 9:00 AM",
+            toast("Error!", {
+                description: "Please try to fill all fields",
                 action: {
                     label: "Undo",
                     onClick: () => console.log("Undo"),
@@ -38,7 +38,8 @@ export default function Settings() {
         console.log(settings)
         fetch("http://localhost:8000/api/v1/metadata/update" , {
             headers : {
-                "Authorization" : `Bearer ${localStorage.getItem("token")}`
+                "Authorization" : `Bearer ${localStorage.getItem("token")}` , 
+                "Content-Type" : "application/json"
             } , 
             method : "POST" , 
             body : JSON.stringify(settings )
@@ -48,16 +49,61 @@ export default function Settings() {
             }
         }).then(data => {
             if(data != undefined ) { 
-                console.log("metadata updated successfully!") 
+                toast("Success!", {
+                    description: "Metadata updated successfuly!",
+                    action: {
+                        label: "Undo",
+                        onClick: () => console.log("Undo"),
+                    },
+                })
             }
         })
     }
     function saveNewEmail() {
-
-        console.log("email saved" , emailToSaveRef.current!['value'])
+        if(emailToSaveRef.current!['value']) { 
+            const params = new URLSearchParams({email : emailToSaveRef.current!['value']})
+            
+            fetch(`http://localhost:8000/api/v1/metadata/emails?${params}` , {
+                headers: {
+                    "Authorization" : `Bearer ${localStorage.getItem("token")}`
+                } ,  
+                method : "POST"
+            }).then(res => {
+                if(res.ok) {
+                    console.log(res)
+                    return res.json() 
+                }
+            }).then(data => {
+                if(data != undefined ) {
+                    toast("Success", {
+                        description: "Emaid Added successfully!",
+                        action: {
+                            label: "Undo",
+                            onClick: () => console.log("Undo"),
+                        },
+                    })
+                }
+            })
+            
+        }
+        console.log("email saved" , )
     }
 
-    useEffect(()=>{
+    function fetchEmails() { 
+        fetch("http://localhost:8000/api/v1/metadata/emails/") 
+        .then(res => {
+            if(res.ok) { 
+                return res.json()
+            }
+        })
+        .then(data => {
+            if(data != undefined) {
+                console.log(data) 
+                setEmails(data)
+            }
+        })
+    }
+    function fetchSettings() { 
         fetch("http://localhost:8000/api/v1/metadata/") 
         .then(res => {
             if(res.ok) { 
@@ -70,6 +116,11 @@ export default function Settings() {
                 setSettings(data)
             }
         })
+    }
+
+    useEffect(()=>{
+        fetchSettings()
+        fetchEmails() 
     } , [])
 
     return <div className="mx-16"> 
@@ -107,6 +158,7 @@ export default function Settings() {
                         onChange={(e)=>{
                             setSettings({...settings , TARGET_SERVER_HOST : e.currentTarget.value})
                         }}
+                        disabled
                     />
                 </div>
                 <div className="flex justify-between my-2">
@@ -122,6 +174,7 @@ export default function Settings() {
                         onChange={(e)=>{
                             setSettings({...settings , TARGET_SERVER_PORT : Number.parseInt(e.currentTarget.value)})
                         }}
+                        disabled
                     />
                 </div>
                 <div className="flex justify-between my-2">
@@ -163,13 +216,18 @@ export default function Settings() {
                         <p className="text-foreground text-gray-500">Those emails used to send alerts if an anomaly detected</p>
                     </div>
                     <div className="flex">
-                        <Input
-                            className="w-100"
-                            id="input-demo-disabled"
-                            type="email"
-                            placeholder="Emails"
-                            
-                        />
+                        <ScrollArea className="h-30 w-60 rounded-md border">
+                            <div className="p-4">
+                                <h4 className="mb-4 text-sm leading-none font-bold">Emails</h4>
+                                {emails!.map((tag) => (
+                                <React.Fragment key={tag}>
+                                    <div className="text-sm">{tag}</div>
+                                    <Separator className="my-2" />
+                                </React.Fragment>
+                                ))}
+                            </div>
+                        </ScrollArea>
+                    
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 <Button variant="outline" className="ms-2"><Plus /></Button>
@@ -184,6 +242,7 @@ export default function Settings() {
                                         Add new email for alerting when anomaly detected
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
+                                
                                 <Input
                                     id="input-demo-disabled"
                                     type="email"

@@ -10,6 +10,11 @@ export default function Page( {children} : { children : ReactNode }) {
   const router = useRouter()
 
   useEffect(() => {   
+    console.log(localStorage.getItem("token"))
+    if(localStorage.getItem("token") == null) { 
+      //router.push("/")
+      return 
+    }
     fetch("http://localhost:8000/api/v1/users/me" , 
       {
         headers : {
@@ -18,10 +23,13 @@ export default function Page( {children} : { children : ReactNode }) {
       }
     )
     .then(data => {
-      /*if(data.status == 401) { 
-        router.push("/")
-      }*/
-    }) 
+      if(data.status == 401) { 
+        //router.push("/")
+      }
+    })
+    .catch((err : Error) => {
+      router.push("/")
+    })
   } , [])
   return (
     <SidebarProvider

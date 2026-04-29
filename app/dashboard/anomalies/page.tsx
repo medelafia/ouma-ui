@@ -1,15 +1,6 @@
 "use client";
 
-import { DataTable } from "@/components/data-table";
-import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import {ArrowUpRight , RefreshCcw} from "lucide-react"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList , BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 import CDataTable from "@/components/c-data-table";
 import { useEffect, useState } from "react";
@@ -30,7 +21,11 @@ export default function Nodes() {
     const [ error , setError] : any = useState(undefined)
 
     useEffect(() => { 
-        fetch("http://localhost:8000/api/v1/anomalies/all")
+        fetch("http://localhost:8000/api/v1/anomalies/all", {
+            headers : {
+                "Authorization" : `Bearer ${localStorage.getItem("token")}`
+            }
+        })
         .then(res => {
             if(res.ok) return res.json()
             else {
@@ -38,8 +33,11 @@ export default function Nodes() {
                 setLoading(false)
             }
         }).then(data => {
-            setAnomalies(data)
-            setLoading(false)
+            if(data != undefined){
+                setAnomalies(data)
+                setLoading(false)
+                console.log(data)
+            }
         }).catch((err : Error) => {
             setError(err.message)
             setLoading(false)
@@ -67,7 +65,7 @@ export default function Nodes() {
             </div>
         </div>
         <div className="mt-4">
-            <CDataTable loading={false} data={data} columns={["Anomaly Id" , 'Detection Date' , 'Detection Time' , "Duration" , "Instance Id"]}/>
+            <CDataTable error={error} loading={loading} data={anomalies} columns={["Anomaly Id" , 'Detection Date' , 'Detection Time' , "Duration" , "Instance Id"]}/>
         </div>
     </div>; 
 }
