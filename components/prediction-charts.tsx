@@ -7,7 +7,7 @@ import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "
 export const description = "A multiple line chart"
 export type ChartData = {
         time : Number , 
-        cpu_usage_pred : Number ,
+        cpu_usage_pred : String ,
         cpu_usage_actual : Number , 
         memory_usage_pred : Number , 
         memory_usage_actual : Number 
@@ -44,10 +44,9 @@ export default function PredictionCharts({data} : {data : ChartData[]}){
                         <CartesianGrid vertical={false} />
                         <XAxis
                         dataKey="time"
-                        tickLine={false}
-                        axisLine={false}
-                        tickMargin={8}
-                        //tickFormatter={(value) => value.slice(0, 3)}
+                        tickFormatter={(value) =>
+                            new Date(value).toLocaleTimeString()
+                        }
                         />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
                         <Line
@@ -86,11 +85,10 @@ export default function PredictionCharts({data} : {data : ChartData[]}){
                     >
                         <CartesianGrid vertical={false} />
                         <XAxis
-                        dataKey="time"
-                        tickLine={false}
-                        axisLine={false}
-                        tickMargin={8}
-                        //tickFormatter={(value) => value.slice(0, 3)}
+                            dataKey="time"
+                            tickFormatter={(value) =>
+                                new Date(value).toLocaleTimeString()
+                            }
                         />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
                         <Line

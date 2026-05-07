@@ -10,15 +10,12 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 
-const chartData  : ChartData[] = [
-  { time: 1776555701 , cpu_usage_pred : 30 , cpu_usage_actual : 10 , memory_usage_pred: 20 , memory_usage_actual : 10 },
-  { time: 1776555721 , cpu_usage_pred : 17 , cpu_usage_actual : 16 , memory_usage_pred: 30 , memory_usage_actual : 81 },
-  { time: 1776555741 , cpu_usage_pred : 13 , cpu_usage_actual : 35 , memory_usage_pred: 15 , memory_usage_actual : 18 },
-] 
+
 export default function Page() {
   const params = useParams<{nodeId : string}>()
   const [nodeMetrics ,setNodeMetrics] = useState([])
   const [loading , setLoading] = useState(true)
+  const [chartData , setChartData] = useState(undefined) 
   console.log(params)
   function fetchMetrics() { 
     setLoading(true)
@@ -37,9 +34,23 @@ export default function Page() {
       }
     })
   }
+  function fetchMetricsChartsData() {
+    fetch(`http://localhost:8000/api/v1/instances/${params.nodeId}/metrics/all`).then(res => {
+      if(res.ok) {
+        return res.json()
+      }
+    }).then(data => {
+      setLoading(false)
+      if(data != undefined ) {
+        setChartData(data)
+        console.log(data)
+      }
+    })
+  }
 
   useEffect(() => {
    fetchMetrics()
+   fetchMetricsChartsData()
   } ,  [] ) 
   console.log(nodeMetrics)
   return <div className="mx-8"> 
@@ -121,7 +132,7 @@ export default function Page() {
           }
         </div>
         <div className="my-4 grid grid-cols-2 gap-4 mx-6">
-          <PredictionCharts data={chartData} />
+          { chartData != undefined && <PredictionCharts data={chartData!} /> } 
         </div>
     </div>; 
 }

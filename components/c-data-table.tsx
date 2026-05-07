@@ -1,4 +1,4 @@
-import { AlertCircleIcon, MoreHorizontalIcon } from "lucide-react";
+import { AlertCircleIcon, CalendarIcon, MoreHorizontalIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
@@ -6,115 +6,236 @@ import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, Pagi
 import { Item, ItemContent, ItemMedia, ItemTitle } from "./ui/item";
 import { Spinner } from "./ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import React, { useEffect, useState } from "react";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "./ui/breadcrumb";
+import Link from "next/link";
+import { Field } from "./ui/field";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Calendar } from "./ui/calendar";
+import { addDays, format } from "date-fns";
+import { DateRange } from "react-day-picker";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 
 
 
 type Props = {
-    data : any , 
     columns : String[] ,  
-    loading? : Boolean, 
-    error? : String
+    fetchUrl : String 
 }
-export default function CDataTable({data , columns , loading , error} : Props) { 
-    
+export default function CDataTable({fetchUrl , columns } : Props) { 
+    const [data , setData] : any = useState(undefined) 
+    const [loading , setLoading] = useState(true)
+    const [ error , setError] : any = useState(undefined)
+    const [totalPages , setTotalPages ] = useState(undefined) 
+    const [currentPage , setCurrentPage ] = useState(0)
+    const [pageSize , setPageSize ] = useState(5)
+    const [date, setDate] = React.useState<DateRange | undefined>({
+        from: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDay()- 2),
+        to: addDays(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDay() + 2), 2),
+    })
+
+    useEffect(() => { 
+        console.log("fetching")
+        fetch(`${fetchUrl}?from_date=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}&page=${currentPage}&size=${pageSize}`, {
+            headers : {
+                "Authorization" : `Bearer ${localStorage.getItem("token")}`
+            }
+        })
+        .then(res => {
+            if(res.ok) return res.json()
+            else {
+                setError("Cannot load data!")
+                setLoading(false)
+            }
+        }).then(data => {
+            if(data != undefined){
+                setData(data.content) 
+                setTotalPages(data.metadata.totalPages) 
+                setLoading(false)
+                console.log(data)
+            }
+        }).catch((err : Error) => {
+            setError(err.message)
+            setLoading(false)
+        })
+        } , [date , currentPage , pageSize] )
     return (
-        <div>
-            { error && 
-                <Alert variant="destructive" className="w-full my-4">
-                    <AlertCircleIcon />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>
-                        {error}
-                    </AlertDescription>
-                </Alert> 
-            } 
-            <div className="rounded-lg border px-3">
-                <Table >
-                    <TableHeader>
-                        <TableRow>
-                            {columns.map((column , key) => <TableHead key={key}>{column}</TableHead>)}
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {
-                            loading 
-                            ?
+        <>
+        <div className="flex justify-between items-center">
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink asChild>
+                            <Link href="/dashboard" className="text-lg">Dashboard</Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink asChild>
+                            <Link href="/dashboard/anomalies" className="text-lg">Anomalies</Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
+            <div className="flex">
+                <Field className="mx-auto w-60">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            id="date-picker-range"
+                            className="justify-start px-2.5 font-normal"
+                        >
+                            <CalendarIcon />
+                            {date?.from ? (
+                            date.to ? (
+                                <>
+                                {format(date.from, "LLL dd, y")} -{" "}
+                                {format(date.to, "LLL dd, y")}
+                                </>
+                            ) : (
+                                format(date.from, "LLL dd, y")
+                            )
+                            ) : (
+                            <span>Pick a date</span>
+                            )}
+                        </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                            mode="range"
+                            defaultMonth={date?.from}
+                            selected={date}
+                            onSelect={setDate}
+                            numberOfMonths={2}
+                        />
+                        </PopoverContent>
+                    </Popover>
+                </Field>
+                <Select onValueChange={(val) =>{
+                    setPageSize(Number.parseInt(val))
+                }}>
+                    <SelectTrigger className="w-[80px] ms-3">
+                        <SelectValue placeholder="Size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectItem value="5">5</SelectItem>
+                            <SelectItem value="10">10</SelectItem>
+                            <SelectItem value="15">15</SelectItem>
+                            <SelectItem value="20">20</SelectItem>
+                            <SelectItem value="25">25</SelectItem>
+                            <SelectItem value="30">30</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+            </div>
+        </div>
+        <div className="mt-4">
+            <div>
+                { error && 
+                    <Alert variant="destructive" className="w-full my-4">
+                        <AlertCircleIcon />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                            {error}
+                        </AlertDescription>
+                    </Alert> 
+                } 
+                <div className="rounded-lg border px-3">
+                    <Table >
+                        <TableHeader>
                             <TableRow>
-                                <TableCell colSpan={columns.length + 1}>
-                                    <Item variant="muted">
-                                        <ItemMedia>
-                                            <Spinner />
-                                        </ItemMedia>
-                                        <ItemContent>
-                                            <ItemTitle className="line-clamp-1">Loading data...</ItemTitle>
-                                        </ItemContent>
-                                    </Item>
-                                </TableCell>
+                                {columns.map((column , key) => <TableHead key={key}>{column}</TableHead>)}
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
-                            :( error || data?.length 
+                        </TableHeader>
+                        <TableBody>
+                            {
+                                loading 
                                 ?
                                 <TableRow>
-                                    <TableCell colSpan={columns.length}>No Data Found</TableCell>
+                                    <TableCell colSpan={columns.length + 1}>
+                                        <Item variant="muted">
+                                            <ItemMedia>
+                                                <Spinner />
+                                            </ItemMedia>
+                                            <ItemContent>
+                                                <ItemTitle className="line-clamp-1">Loading data...</ItemTitle>
+                                            </ItemContent>
+                                        </Item>
+                                    </TableCell>
                                 </TableRow>
-                                :
-                                data?.map((row : any , key : any) => 
-                                    <TableRow key={key}>
-                                        {
-                                            columns.map(
-                                                (column , key) => (
-                                                    <TableCell className="font-medium" key={key}>{row[column.toLowerCase().replace(" " , "_")]}</TableCell>
-                                                )
-                                            )
-
-                                        }
-                                        <TableCell className="text-right">
-                                            <DropdownMenu>
-                                            <DropdownMenuTrigger asChild ><Button variant="ghost" size="icon" className="size-8"><MoreHorizontalIcon /><span className="sr-only">Open menu</span></Button></DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                                <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem variant="destructive">
-                                                Delete
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
+                                :( error || data?.length == 0 
+                                    ?
+                                    <TableRow>
+                                        <TableCell colSpan={columns.length}>No Data Found</TableCell>
                                     </TableRow>
-                                )                 
-                            )
-                        }   
-                    </TableBody>
-                </Table>
+                                    :
+                                    data?.map((row : any , key : any) => 
+                                        <TableRow key={key}>
+                                            {
+                                                columns.map(
+                                                    (column , key) => (
+                                                        <TableCell className="font-medium" key={key}>{row[column.toLowerCase().replace(" " , "_")]}</TableCell>
+                                                    )
+                                                )
 
+                                            }
+                                            <TableCell className="text-right">
+                                                <DropdownMenu>
+                                                <DropdownMenuTrigger asChild ><Button variant="ghost" size="icon" className="size-8"><MoreHorizontalIcon /><span className="sr-only">Open menu</span></Button></DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem>Edit</DropdownMenuItem>
+                                                    <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem variant="destructive">
+                                                    Delete
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        </TableRow>
+                                    )                 
+                                )
+                            }   
+                        </TableBody>
+                    </Table>
+
+                </div>
+                
+                { 
+                totalPages! > 0 && <Pagination className="mt-6">
+                        <PaginationContent>
+                            <PaginationItem
+                                onClick={() => {
+                                    if(currentPage - 1 >= 0 ) { 
+                                        setCurrentPage(currentPage - 1)
+                                    }
+                                }}>
+                                <PaginationPrevious />
+                            </PaginationItem>
+                            {
+                                Array.from({ length: totalPages! }, (_, i) => i).map((element , key) =>
+                                <PaginationItem key={key} onClick={()=>setCurrentPage(element)} className={`${currentPage == element ? "border" : "" } rounded-lg mx-1`}>
+                                    <PaginationLink >{element + 1 }</PaginationLink>
+                                </PaginationItem>
+                                )
+                            }
+                            <PaginationItem 
+                                onClick={() => {
+                                    if(currentPage + 1 < totalPages! ) { 
+                                        setCurrentPage(currentPage + 1 )
+                                    }
+                                }}>
+                                <PaginationNext/>
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+                }
             </div>
-            
-            <Pagination className="mt-6">
-                <PaginationContent>
-                    <PaginationItem>
-                        <PaginationPrevious href="#" />
-                    </PaginationItem>
-                    <PaginationItem>
-                        <PaginationLink href="#">1</PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                        <PaginationLink href="#" isActive>
-                            2
-                        </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                        <PaginationLink href="#">3</PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                        <PaginationEllipsis />
-                    </PaginationItem>
-                    <PaginationItem>
-                        <PaginationNext href="#" />
-                    </PaginationItem>
-                </PaginationContent>
-            </Pagination>
         </div>
+        </>
     ); 
 }

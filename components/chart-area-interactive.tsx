@@ -79,7 +79,7 @@ export function ChartAreaInteractive({chartData , error } : {chartData : ChartTy
   })
 
   return (
-    <Card className="@container/card">
+    <Card className="@container/card mx-6">
       <CardHeader>
         <CardTitle>Overview</CardTitle>
         <CardDescription>

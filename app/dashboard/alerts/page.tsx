@@ -1,9 +1,6 @@
 "use client";
 
-import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import Link from "next/link";
 import CDataTable from "@/components/c-data-table";
-import { useEffect, useState } from "react";
 
 
 
@@ -11,54 +8,8 @@ const columns = [
     "Alert ID" , "Send Time", "Send Date" , "Status" , "Content" , "Severity" , "Anomaly ID"
 ]
 
-export default function Nodes() {
-    const [alerts , setAlerts ] = useState(undefined) 
-    const [loading , setLoading] = useState(true)
-    const [ error , setError] : any = useState(undefined)
-
-    useEffect(() => { 
-        fetch("http://localhost:8000/api/v1/alerts/all" , {
-            headers : {
-                "Authorization" : `Bearer ${localStorage.getItem("token")}`
-            }
-        })
-        .then(res => {
-            if(res.ok) return res.json()
-            else {
-                setError("Cannot load data!")
-                setLoading(false)
-            }
-        }).then(data => {
-            setAlerts(data)
-            setLoading(false)
-        }).catch((err : Error) => {
-            setError(err.message)
-            setLoading(false)
-        })
-    } , [] )
+export default function Alerts() {
     return <div className="mx-8"> 
-        <div className="flex justify-between items-center mx-6">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                            <Link href="/dashboard" className="text-lg">Dashboard</Link>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                            <Link href="/dashboard/alerts" className="text-lg">Alerts</Link>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
-            <div className="flex">
-                
-            </div>
-        </div>
-        <div className="mt-4 mx-6">
-            <CDataTable loading={loading} data={alerts} columns={columns} error={error}/>
-        </div>
+            <CDataTable fetchUrl="http://localhost:8000/api/v1/alerts/all" columns={columns}  />
     </div>; 
 }
