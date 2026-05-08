@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 
 
@@ -30,7 +31,47 @@ export default function Alerts() {
         console.log(alertId)
     }   
     function saveIncident() { 
-
+      if(alertId != undefined && incidentDate != undefined && incidentTime.trim() !== "" && incidentDescription.trim() !== "") { 
+        const request_body = { 
+          "incident_id" : "" , 
+          "incident_date" : incidentDate , 
+          "incident_time" : incidentTime , 
+          "description" : incidentDescription , 
+          "alert_id" : alertId 
+        }
+        fetch("http://localhost:8000/api/v1/incident/" , {
+          method : "POST" , 
+          headers : { 
+            "Authorization" : `Bearer ${localStorage.getItem("token")}`
+          }, 
+          body : JSON.stringify(request_body)
+        })
+        .then(res => {
+          if(res.ok) {
+            return res.json() 
+          } 
+        }) 
+        .then(data => {
+          if(data) { 
+            toast("Success", {
+                description: "Incident created successfully!",
+                action: {
+                    label: "Undo",
+                    onClick: () => console.log("Undo"),
+                },
+            })
+          } 
+        }) 
+        .catch( (err : Error) => {
+          toast("Error", {
+              description: "Failed to create incident!",
+              action: {
+                  label: "Undo",
+                  onClick: () => console.log("Undo"),
+              },
+          })
+        })
+      }
     }
 
     return <>
