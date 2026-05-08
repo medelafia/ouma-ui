@@ -99,7 +99,7 @@ export default function Nodes() {
                     : <div className="grid grid-cols-3 my-8 gap-8">
                     {   instances.length == 0 || error
                         ? <div>No Instances</div>
-                        : instances.map( ( instance : {instance_id : String , port : number , ip_address : String } , key : any) => 
+                        : instances.map( ( instance : {instance_id : String , port : number , ip_address : String , cpu_usage : number , memory_usage : number } , key : any) => 
                             (<Card size="sm" className="mx-auto w-full max-w-sm" key={key}>
                                 <CardHeader>
                                     <CardTitle>#ID : {instance.instance_id}</CardTitle>
@@ -111,16 +111,16 @@ export default function Nodes() {
                                     <Field className="w-full max-w-sm my-4">
                                         <FieldLabel htmlFor="progress-upload">
                                             <span>CPU Usage</span>
-                                            <span className="ml-auto">66%</span>
+                                            <span className="ml-auto">{instance.cpu_usage}%</span>
                                         </FieldLabel>
-                                        <Progress value={66} id="progress-upload" />
+                                        <Progress value={instance.cpu_usage} id="progress-upload" />
                                     </Field>
                                     <Field className="w-full max-w-sm my-4">
                                         <FieldLabel htmlFor="progress-upload">
                                             <span>Memory Usage</span>
-                                            <span className="ml-auto">66%</span>
+                                            <span className="ml-auto">{instance.memory_usage}%</span>
                                         </FieldLabel>
-                                        <Progress value={66} id="progress-upload" />
+                                        <Progress value={instance.memory_usage} id="progress-upload" />
                                     </Field>
                                 </CardContent>
                                 <CardFooter>

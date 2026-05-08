@@ -1,4 +1,4 @@
-import { AlertCircleIcon, CalendarIcon, MoreHorizontalIcon } from "lucide-react";
+import { AlertCircleIcon, CalendarIcon, MoreHorizontalIcon, Plus } from "lucide-react";
 import { Button } from "./ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
@@ -20,10 +20,12 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 
 
 type Props = {
+    idColumn: string , 
     columns : String[] ,  
-    fetchUrl : String 
+    fetchUrl : String , 
+    actions? : {title : String , onClick : any }[]
 }
-export default function CDataTable({fetchUrl , columns } : Props) { 
+export default function CDataTable({fetchUrl , columns , actions , idColumn} : Props) { 
     const [data , setData] : any = useState(undefined) 
     const [loading , setLoading] = useState(true)
     const [ error , setError] : any = useState(undefined)
@@ -130,6 +132,7 @@ export default function CDataTable({fetchUrl , columns } : Props) {
                         </SelectGroup>
                     </SelectContent>
                 </Select>
+                
             </div>
         </div>
         <div className="mt-4">
@@ -148,7 +151,7 @@ export default function CDataTable({fetchUrl , columns } : Props) {
                         <TableHeader>
                             <TableRow>
                                 {columns.map((column , key) => <TableHead key={key}>{column}</TableHead>)}
-                                <TableHead className="text-right">Actions</TableHead>
+                                {actions != undefined && <TableHead className="text-right">Actions</TableHead> }
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -183,19 +186,18 @@ export default function CDataTable({fetchUrl , columns } : Props) {
                                                 )
 
                                             }
-                                            <TableCell className="text-right">
+
+                                            { actions != undefined &&<TableCell className="text-right">
                                                 <DropdownMenu>
-                                                <DropdownMenuTrigger asChild ><Button variant="ghost" size="icon" className="size-8"><MoreHorizontalIcon /><span className="sr-only">Open menu</span></Button></DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem variant="destructive">
-                                                    Delete
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
+                                                    <DropdownMenuTrigger asChild ><Button variant="ghost" size="icon" className="size-8"><MoreHorizontalIcon /><span className="sr-only">Open menu</span></Button></DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        { 
+                                                            actions!.map((element , key) => <DropdownMenuItem onClick={() => element.onClick(row[idColumn])}  key={key}>{element.title}</DropdownMenuItem>)
+                                                            
+                                                        }
+                                                    </DropdownMenuContent>
                                                 </DropdownMenu>
-                                            </TableCell>
+                                            </TableCell> }
                                         </TableRow>
                                     )                 
                                 )

@@ -1,6 +1,16 @@
 "use client";
 
 import CDataTable from "@/components/c-data-table";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
+import { format } from "date-fns";
+
+import React, { useState } from "react";
 
 
 
@@ -8,8 +18,107 @@ const columns = [
     "Alert ID" , "Send Time", "Send Date" , "Status" , "Content" , "Severity" , "Anomaly ID"
 ]
 
+
 export default function Alerts() {
-    return <div className="mx-8"> 
-            <CDataTable fetchUrl="http://localhost:8000/api/v1/alerts/all" columns={columns}  />
-    </div>; 
+    const [showIncidentDrawer , setShowIncidentDrawer] = useState(false)
+    const [alertId , setAlertId ] = useState(undefined)
+    const [incidentDate, setIncidentDate] = React.useState<Date>()
+    const [incidentTime, setIncidentTime] = useState("")
+    const [incidentDescription , setIncidentDescription ] = useState("")
+    function createIncident(alertId : String) { 
+        setShowIncidentDrawer(!showIncidentDrawer)
+        console.log(alertId)
+    }   
+    function saveIncident() { 
+
+    }
+
+    return <>
+    <div className="mx-8"> 
+      <CDataTable 
+          idColumn="alert_id"
+          fetchUrl="http://localhost:8000/api/v1/alerts/all" 
+          columns={columns}  
+          actions={[
+              {title : "Create incident" , onClick : createIncident}
+          ]}
+      />         
+    </div>
+    <Drawer direction="right" open={showIncidentDrawer}>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>Create incident</DrawerTitle>
+          <DrawerDescription>enter the incident informarion in the form bellow.</DrawerDescription>
+        </DrawerHeader>
+        <div className="no-scrollbar overflow-y-auto px-4">
+          <Field>
+            <FieldLabel htmlFor="alert_id">Alert ID</FieldLabel>
+            <Input
+              id="alert_id"
+              placeholder="Alert Id"
+              required
+              name='alert_id'
+              value={alertId != undefined ? alertId : ""}
+            />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="alert_id">Incident time</FieldLabel>
+            <Input
+              id="alert_id"
+              placeholder="Alert Id"
+              required
+              name='alert_id'
+              value={alertId != undefined ? alertId : ""}
+            />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="incident_date">Incident date</FieldLabel>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  id="incident_date"
+                  className="justify-start font-normal"
+                >
+                  {incidentDate ? format(incidentDate, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={incidentDate}
+                  onSelect={setIncidentDate}
+                  defaultMonth={incidentDate}
+                />
+              </PopoverContent>
+            </Popover>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="alert_id">Incident time</FieldLabel>
+            <Input
+              id="incident_time"
+              placeholder="Incident time"
+              required
+              name='incident_time'
+              type="time"
+              onChange={(value) => setIncidentTime(value.currentTarget.value)}
+            />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="alert_id">Incident description</FieldLabel>
+            <Textarea
+              placeholder="Incident description"
+              onChange={(value) => setIncidentDescription(value.currentTarget.value)}
+            />
+          </Field>
+        </div>
+        <DrawerFooter>
+          <Button onClick={saveIncident}>Submit</Button>
+          <DrawerClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+    </>; 
 }
