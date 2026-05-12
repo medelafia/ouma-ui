@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
-
 import React, { useState } from "react";
 import { toast } from "sonner";
 
@@ -22,26 +21,27 @@ const columns = [
 
 export default function Alerts() {
     const [showIncidentDrawer , setShowIncidentDrawer] = useState(false)
-    const [alertId , setAlertId ] = useState(undefined)
+    const [alertId , setAlertId ] = React.useState<string | undefined>()
     const [incidentDate, setIncidentDate] = React.useState<Date>()
     const [incidentTime, setIncidentTime] = useState("")
     const [incidentDescription , setIncidentDescription ] = useState("")
-    function createIncident(alertId : String) { 
+    function createIncident(alertId : string) { 
         setShowIncidentDrawer(!showIncidentDrawer)
-        console.log(alertId)
+        setAlertId(alertId)
     }   
     function saveIncident() { 
       if(alertId != undefined && incidentDate != undefined && incidentTime.trim() !== "" && incidentDescription.trim() !== "") { 
         const request_body = { 
-          "incident_id" : "" , 
-          "incident_date" : incidentDate , 
-          "incident_time" : incidentTime , 
+          "incident_date" : incidentDate.toISOString().split("T")[0] , 
+          "incident_time" : incidentTime + ":00" , 
           "description" : incidentDescription , 
           "alert_id" : alertId 
         }
-        fetch("http://localhost:8000/api/v1/incident/" , {
+        console.log(request_body)
+        fetch("http://localhost:8000/api/v1/incidents/" , {
           method : "POST" , 
           headers : { 
+            "Content-Type": "application/json" , 
             "Authorization" : `Bearer ${localStorage.getItem("token")}`
           }, 
           body : JSON.stringify(request_body)
@@ -72,6 +72,7 @@ export default function Alerts() {
           })
         })
       }
+
     }
 
     return <>
@@ -100,16 +101,7 @@ export default function Alerts() {
               required
               name='alert_id'
               value={alertId != undefined ? alertId : ""}
-            />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="alert_id">Incident time</FieldLabel>
-            <Input
-              id="alert_id"
-              placeholder="Alert Id"
-              required
-              name='alert_id'
-              value={alertId != undefined ? alertId : ""}
+              readOnly
             />
           </Field>
           <Field>
@@ -156,7 +148,7 @@ export default function Alerts() {
         <DrawerFooter>
           <Button onClick={saveIncident}>Submit</Button>
           <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" onClick={() => setShowIncidentDrawer(false)}>Cancel</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

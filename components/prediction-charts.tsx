@@ -6,12 +6,12 @@ import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "
 
 export const description = "A multiple line chart"
 export type ChartData = {
-        time : Number , 
-        cpu_usage_pred : String ,
-        cpu_usage_actual : Number , 
-        memory_usage_pred : Number , 
-        memory_usage_actual : Number 
-    }
+    time : Number , 
+    cpu_usage_pred : String ,
+    cpu_usage_actual : Number , 
+    memory_usage_pred : Number , 
+    memory_usage_actual : Number 
+}
 const chartConfig = {
   predicted: {
     label: "Predicted",
@@ -22,14 +22,14 @@ const chartConfig = {
     color: "var(--chart-2)",
   },
 } satisfies ChartConfig
-export default function PredictionCharts({data} : {data : ChartData[]}){ 
+export default function PredictionCharts({data , startDatetime , endDatetime } : {data : ChartData[] , startDatetime : any , endDatetime : any }){ 
     return (
         
         <>
             <Card>
                 <CardHeader>
                     <CardTitle>Memory Usage</CardTitle>
-                    <CardDescription>January - June 2024</CardDescription>
+                    <CardDescription>{startDatetime.toString()} - {endDatetime.toString()}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <ChartContainer config={chartConfig}>
@@ -71,7 +71,7 @@ export default function PredictionCharts({data} : {data : ChartData[]}){
                 <Card>
                 <CardHeader>
                     <CardTitle>CPU Usage</CardTitle>
-                    <CardDescription>January - June 2024</CardDescription>
+                    <CardDescription>{startDatetime.toString()} - {endDatetime.toString()}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <ChartContainer config={chartConfig}>

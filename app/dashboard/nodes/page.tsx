@@ -51,7 +51,7 @@ export default function Nodes() {
     }, []) 
     return (
     <div className="mx-8"> 
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center ">
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
@@ -68,10 +68,6 @@ export default function Nodes() {
                     </BreadcrumbList>
                 </Breadcrumb>
                 <div className="flex">
-                    <ButtonGroup className="mr-2">
-                        <Input id="input-button-group" placeholder="Search by host" />
-                        <Button variant="outline">Search</Button>
-                    </ButtonGroup>
                     <Button variant="destructive" onClick={fetchInstances}>
                         Refrech
                         <RefreshCcw />
@@ -96,7 +92,7 @@ export default function Nodes() {
                             <ItemTitle className="line-clamp-1">Loading data...</ItemTitle>
                         </ItemContent>
                     </Item>
-                    : <div className="grid grid-cols-3 my-8 gap-8">
+                    : <div className="grid grid-cols-1 my-8 gap-8 xl:grid-cols-4 md:grid-cols-2">
                     {   instances.length == 0 || error
                         ? <div>No Instances</div>
                         : instances.map( ( instance : {instance_id : String , port : number , ip_address : String , cpu_usage : number , memory_usage : number } , key : any) => 

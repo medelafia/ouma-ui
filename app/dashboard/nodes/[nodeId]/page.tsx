@@ -1,14 +1,14 @@
 "use client";
-import PredictionCharts, { ChartData } from "@/components/prediction-charts";
+import PredictionCharts from "@/components/prediction-charts";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { Card, CardDescription , CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LineStyle, RefreshCcw, TrendingUpIcon } from "lucide-react";
+import { LineStyle, RefreshCcw, Trash  } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-
+import React, { useEffect, useState } from "react";
 
 
 export default function Page() {
@@ -16,7 +16,10 @@ export default function Page() {
   const [nodeMetrics ,setNodeMetrics] = useState([])
   const [loading , setLoading] = useState(true)
   const [chartData , setChartData] = useState(undefined) 
-  console.log(params)
+  const currentDatetime = new Date()
+  const [startDate , setStartDate] = React.useState<Date | undefined>(new Date(currentDatetime.getFullYear(), currentDatetime.getMonth(), currentDatetime.getDate() , currentDatetime.getHours() - 24))
+  
+
   function fetchMetrics() { 
     setLoading(true)
     fetch(`http://localhost:8000/api/v1/instances/${params.nodeId}/metrics`, {
@@ -35,7 +38,11 @@ export default function Page() {
     })
   }
   function fetchMetricsChartsData() {
-    fetch(`http://localhost:8000/api/v1/instances/${params.nodeId}/metrics/all`).then(res => {
+    fetch(`http://localhost:8000/api/v1/instances/${params.nodeId}/metrics/all?from_date=${startDate?.toISOString()}` ,{
+      headers : {
+        "Authorization" : `Bearer ${localStorage.getItem("token")}`
+      }
+    }).then(res => {
       if(res.ok) {
         return res.json()
       }
@@ -47,13 +54,45 @@ export default function Page() {
       }
     })
   }
-
-  useEffect(() => {
+  function fetchAllData() { 
    fetchMetrics()
    fetchMetricsChartsData()
-  } ,  [] ) 
-  console.log(nodeMetrics)
-  return <div className="mx-8"> 
+  }
+
+  function setStartDateByHours(numberOfHours : number) { 
+    const currentDate = new Date()
+    setStartDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() , currentDate.getHours() - numberOfHours))
+  }
+  function clearPredictions() { 
+    fetch(`http://localhost:8000/api/v1/instances/${params.nodeId}/metrics/all` ,{
+      method : "DELETE" , 
+      headers : {
+        "Authorization" : `Bearer ${localStorage.getItem("token")}`
+      }
+    }).then(res => {
+      if(res.ok) {
+        return res.json()
+      }
+    }).then(data => {
+      setLoading(false)
+      if(data != undefined ) {
+        console.log(data)
+        fetchMetricsChartsData()
+      }
+    })
+  }
+
+
+  useEffect(() => {
+    fetchAllData()
+  } ,  [] )
+  useEffect(() => {
+    console.log("start date setted" , startDate)
+    fetchMetricsChartsData()
+  } , [startDate]) 
+  
+
+  return <div className="mx-2 md:mx-8"> 
         <div className="flex justify-between items-center mx-6">
             <Breadcrumb>
                 <BreadcrumbList>
@@ -64,27 +103,27 @@ export default function Page() {
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                            <Link href="/dashboard/nodes" className="text-lg">Nodes</Link>
-                        </BreadcrumbLink>
+                      <BreadcrumbLink asChild>
+                          <Link href="/dashboard/nodes" className="text-lg">Nodes</Link>
+                      </BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                            <Link href={`/dashboard/nodes/${params.nodeId}`} className="text-lg">{params.nodeId}</Link>
-                        </BreadcrumbLink>
+                      <BreadcrumbLink asChild>
+                          <Link href={`/dashboard/nodes/${params.nodeId}`} className="text-lg">{params.nodeId}</Link>
+                      </BreadcrumbLink>
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
             <div className="flex">
-                <Button variant="destructive" onClick={fetchMetrics}>
-                  Refresh
-                  <RefreshCcw />
-                </Button>
+              <Button variant="default" onClick={fetchAllData}>
+                <RefreshCcw />
+                refrech
+              </Button>
             </div>
         </div>
-        <div className="mt-4 text-3xl mx-6 flex items-center"><LineStyle className="me-4"/> <span>Node Metrics</span></div>
-        <div className="mt-4 grid grid-cols-4 gap-4 mx-6">
+        <div className="mt-4 text-3xl mx-6 flex items-center font-bold"><LineStyle className="me-4"/> <span>Node Metrics</span></div>
+        <div className="mt-4 grid grid-cols-1 gap-4 mx-6 lg:grid-cols-4 md:grid-cols-2 ">
           { 
             loading 
             ? <>
@@ -115,24 +154,26 @@ export default function Page() {
                   <CardHeader>
                     <CardDescription>{metric.name}</CardDescription>
                     <CardTitle className="font-semibold tabular-nums @[250px]/card:text-xl">
-                      {metric.value.data.result[0] ? metric.value.data.result[0].values.at(-1)[1] : 0}
+                      {metric.value.data.result[0] ? Number.parseFloat(metric.value.data.result[0].values.at(-1)[1]).toFixed(2) : 0}
                     </CardTitle>
                   </CardHeader>
-                  {/*<CardFooter className="flex-col items-start gap-1.5 text-sm">
-                    <div className="line-clamp-1 flex gap-2 font-medium">
-                      Trending up this month{" "}
-                      <TrendingUpIcon className="size-4" />
-                    </div>
-                    <div className="text-muted-foreground">
-                      Visitors for the last 6 months
-                    </div>
-                  </CardFooter>*/}
                 </Card>)      
               )
           }
         </div>
-        <div className="my-4 grid grid-cols-2 gap-4 mx-6">
-          { chartData != undefined && <PredictionCharts data={chartData!} /> } 
+        <div className="grid grid-cols-1 md:grid-cols-2 mx-6 my-4 justify-between">
+          <h1 className="text-2xl font-bold">Server ressource utilisation</h1>
+          <div className="flex mt-3 md:mt-0 justify-end">
+            <ButtonGroup>
+              <Button variant="outline" onClick={() => {setStartDateByHours(24)}}>Last 1 day</Button>
+              <Button variant="outline" onClick={() => {setStartDateByHours(3)}}>Last 3 hours</Button>
+              <Button variant="outline" onClick={() => {setStartDateByHours(1)}}>Last 1 hour</Button>
+            </ButtonGroup>
+            <Button onClick={clearPredictions} className="ms-2" variant="destructive"><Trash/> clear</Button>
+          </div>
+        </div>
+        <div className="my-4 grid grid-cols-1 gap-4 mx-6 md:grid-cols-2">
+          { chartData != undefined && <PredictionCharts data={chartData!} startDatetime={startDate} endDatetime={currentDatetime}/> } 
         </div>
     </div>; 
 }

@@ -54,7 +54,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function ChartAreaInteractive({chartData , error } : {chartData : ChartType[] , error : any}) {
+export function ChartAreaInteractive({chartData , error , setStartDate} : {chartData : ChartType[] , error : any , setStartDate : any }) {
   const isMobile = useIsMobile()
   const [timeRange, setTimeRange] = React.useState("90d")
 
@@ -63,6 +63,18 @@ export function ChartAreaInteractive({chartData , error } : {chartData : ChartTy
       setTimeRange("7d")
     }
   }, [isMobile])
+
+  React.useEffect(()=> { 
+    const currentDatetime = new Date()
+    if(timeRange == "7d" ) { 
+      setStartDate(new Date(currentDatetime.getFullYear(), currentDatetime.getMonth(), currentDatetime.getDate() - 7 , currentDatetime.getHours()))
+    }else if(timeRange == "30d" ) {
+      setStartDate(new Date(currentDatetime.getFullYear(), currentDatetime.getMonth() - 1, currentDatetime.getDate() , currentDatetime.getHours()))
+    } else { 
+      setStartDate(new Date(currentDatetime.getFullYear(), currentDatetime.getMonth() - 3, currentDatetime.getDate() , currentDatetime.getHours()))
+    }
+  } , [timeRange])
+
 
   const filteredData = chartData.filter((item) => {
     const date = new Date(item.date)

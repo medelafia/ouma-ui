@@ -33,10 +33,11 @@ export default function CDataTable({fetchUrl , columns , actions , idColumn} : P
     const [currentPage , setCurrentPage ] = useState(0)
     const [pageSize , setPageSize ] = useState(5)
     const [date, setDate] = React.useState<DateRange | undefined>({
-        from: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDay()- 2),
-        to: addDays(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDay() + 2), 2),
+        from: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()),
+        to: addDays(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()), 2),
     })
 
+    console.log(date)
     useEffect(() => { 
         console.log("fetching")
         fetch(`${fetchUrl}?from_date=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}&page=${currentPage}&size=${pageSize}`, {
