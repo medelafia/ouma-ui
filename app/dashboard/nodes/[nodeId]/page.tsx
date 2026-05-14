@@ -4,8 +4,9 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbS
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Card, CardDescription , CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LineStyle, RefreshCcw, Trash  } from "lucide-react";
+import { CircleGauge, Download, LineStyle, RefreshCcw, Trash  } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -120,6 +121,10 @@ export default function Page() {
                 <RefreshCcw />
                 refrech
               </Button>
+              <Button variant="outline" onClick={()=>{}} className="ms-2">
+                <Download />
+                Download Report
+              </Button>
             </div>
         </div>
         <div className="mt-4 text-3xl mx-6 flex items-center font-bold"><LineStyle className="me-4"/> <span>Node Metrics</span></div>
@@ -161,8 +166,9 @@ export default function Page() {
               )
           }
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 mx-6 my-4 justify-between">
-          <h1 className="text-2xl font-bold">Server ressource utilisation</h1>
+        <Separator className="my-4"/>
+        <div className="grid grid-cols-1 md:grid-cols-2 mx-6 justify-between">
+          <h1 className="text-2xl font-bold flex items-center "><CircleGauge /><span className="ms-2">Server ressource utilisation</span></h1>
           <div className="flex mt-3 md:mt-0 justify-end">
             <ButtonGroup>
               <Button variant="outline" onClick={() => {setStartDateByHours(24)}}>Last 1 day</Button>
