@@ -24,7 +24,7 @@ export default function Page( {children} : { children : ReactNode }) {
     )
     .then(data => {
       if(data.status == 401) { 
-        //router.push("/")
+        router.push("/")
       }
     })
     .catch((err : Error) => {
