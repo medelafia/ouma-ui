@@ -23,7 +23,7 @@ export default function Page() {
 
   function fetchMetrics() { 
     setLoading(true)
-    fetch(`http://ouma-backend-service:8000/api/v1/instances/${params.nodeId}/metrics`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/instances/${params.nodeId}/metrics`, {
       headers : {
         "Authorization" : `Bearer ${localStorage.getItem("token")}`
       }
@@ -39,7 +39,7 @@ export default function Page() {
     })
   }
   function fetchMetricsChartsData() {
-    fetch(`http://ouma-backend-service:8000/api/v1/instances/${params.nodeId}/metrics/all?from_date=${startDate?.toISOString()}` ,{
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/instances/${params.nodeId}/metrics/all?from_date=${startDate?.toISOString()}` ,{
       headers : {
         "Authorization" : `Bearer ${localStorage.getItem("token")}`
       }
@@ -65,7 +65,7 @@ export default function Page() {
     setStartDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() , currentDate.getHours() - numberOfHours))
   }
   function clearPredictions() { 
-    fetch(`http://ouma-backend-service:8000/api/v1/instances/${params.nodeId}/metrics/all` ,{
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/instances/${params.nodeId}/metrics/all` ,{
       method : "DELETE" , 
       headers : {
         "Authorization" : `Bearer ${localStorage.getItem("token")}`

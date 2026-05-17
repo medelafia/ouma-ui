@@ -38,7 +38,7 @@ export default function Alerts() {
           "alert_id" : alertId 
         }
         console.log(request_body)
-        fetch("http://ouma-backend-service:8000/api/v1/incidents/" , {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/incidents/` , {
           method : "POST" , 
           headers : { 
             "Content-Type": "application/json" , 
@@ -79,7 +79,7 @@ export default function Alerts() {
     <div className="mx-8"> 
       <CDataTable 
           idColumn="alert_id"
-          fetchUrl="http://ouma-backend-service:8000/api/v1/alerts/all" 
+          fetchUrl={`${process.env.NEXT_PUBLIC_API_URL}/api/v1/alerts/all`} 
           columns={columns}  
           actions={[
               {title : "Create incident" , onClick : createIncident}

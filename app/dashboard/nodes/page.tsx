@@ -22,7 +22,7 @@ export default function Nodes() {
     const [error , setError] : any = useState() 
     const fetchInstances = () => {
         setLoading(true)
-        fetch("http://localhost:8000/api/v1/instances/all" , 
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/instances/all` , 
             {
                 headers : {
                     "Authorization" : `Bearer ${localStorage.getItem("token")!}`

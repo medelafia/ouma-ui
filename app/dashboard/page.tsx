@@ -20,7 +20,7 @@ export default function Page() {
     const [ startDate , setStartDate] = React.useState<Date | undefined> (new Date(currentDatetime.getFullYear(), currentDatetime.getMonth() - 3, currentDatetime.getDate() , currentDatetime.getHours()))
 
     function fetchData(){
-        fetch(`http://localhost:8000/api/v1/overview?from_date=${startDate?.toISOString()}` , {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/overview?from_date=${startDate?.toISOString()}` , {
             headers : {
                 "Authorization" : `Bearer ${localStorage.getItem("token")!}`
             }

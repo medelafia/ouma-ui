@@ -36,7 +36,7 @@ export default function Settings() {
             return 
         }
         console.log(settings)
-        fetch("http://ouma-backend-service:8000/api/v1/metadata/update" , {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/metadata/update` , {
             headers : {
                 "Authorization" : `Bearer ${localStorage.getItem("token")}` , 
                 "Content-Type" : "application/json"
@@ -63,7 +63,7 @@ export default function Settings() {
         if(emailToSaveRef.current!['value']) { 
             const params = new URLSearchParams({email : emailToSaveRef.current!['value']})
             
-            fetch(`http://ouma-backend-service:8000/api/v1/metadata/emails?${params}` , {
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/metadata/emails?${params}` , {
                 headers: {
                     "Authorization" : `Bearer ${localStorage.getItem("token")}`
                 } ,  
@@ -90,7 +90,7 @@ export default function Settings() {
     }
 
     function fetchEmails() { 
-        fetch("http://ouma-backend-service:8000/api/v1/metadata/emails/") 
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/metadata/emails/`) 
         .then(res => {
             if(res.ok) { 
                 return res.json()
@@ -104,7 +104,7 @@ export default function Settings() {
         })
     }
     function fetchSettings() { 
-        fetch("http://ouma-backend-service:8000/api/v1/metadata/") 
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/metadata/`) 
         .then(res => {
             if(res.ok) { 
                 return res.json()

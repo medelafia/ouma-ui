@@ -12,10 +12,10 @@ export default function Page( {children} : { children : ReactNode }) {
   useEffect(() => {   
     console.log(localStorage.getItem("token"))
     if(localStorage.getItem("token") == null) { 
-      //router.push("/")
+      router.push("/")
       return 
     }
-    fetch("http://localhost:8000/api/v1/users/me" , 
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/me` , 
       {
         headers : {
         "Authorization" : `Bearer ${localStorage.getItem("token")!}`
