@@ -80,7 +80,9 @@ export default function Page() {
         console.log(data)
         fetchMetricsChartsData()
       }
-    })
+    }).catch(error => {
+      console.log("error")
+    }) 
   }
 
 

@@ -90,7 +90,11 @@ export default function Settings() {
     }
 
     function fetchEmails() { 
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/metadata/emails/`) 
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/metadata/emails/`, {
+            headers: {
+                "Authorization" : `Bearer ${localStorage.getItem("token")}`
+            } 
+        })
         .then(res => {
             if(res.ok) { 
                 return res.json()
@@ -104,7 +108,11 @@ export default function Settings() {
         })
     }
     function fetchSettings() { 
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/metadata/`) 
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/metadata/`,{
+            headers : {
+               "Authorization" : `Bearer ${localStorage.getItem("token")}` 
+            }
+        }) 
         .then(res => {
             if(res.ok) { 
                 return res.json()
