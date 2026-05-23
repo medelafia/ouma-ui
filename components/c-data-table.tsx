@@ -41,9 +41,7 @@ export default function CDataTable({fetchUrl , columns , actions , idColumn} : P
     useEffect(() => { 
         console.log("fetching")
         fetch(`${fetchUrl}?from_date=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}&page=${currentPage}&size=${pageSize}`, {
-            headers : {
-                "Authorization" : `Bearer ${localStorage.getItem("token")}`
-            }
+            credentials : "include"
         })
         .then(res => {
             if(res.ok) return res.json()

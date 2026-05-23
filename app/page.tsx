@@ -25,7 +25,8 @@ export default function Page() {
     }else { 
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/token` , {
         method : "POST" ,
-        body : formData
+        body : formData , 
+        credentials : "include"
       })
       .then(res => {
         if(res.ok) {

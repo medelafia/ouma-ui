@@ -24,9 +24,7 @@ export default function Page() {
   function fetchMetrics() { 
     setLoading(true)
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/instances/${params.nodeId}/metrics`, {
-      headers : {
-        "Authorization" : `Bearer ${localStorage.getItem("token")}`
-      }
+      credentials : "include"
     }).then(res => {
       if(res.ok) {
         return res.json()
@@ -40,9 +38,7 @@ export default function Page() {
   }
   function fetchMetricsChartsData() {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/instances/${params.nodeId}/metrics/all?from_date=${startDate?.toISOString()}` ,{
-      headers : {
-        "Authorization" : `Bearer ${localStorage.getItem("token")}`
-      }
+      credentials : "include"
     }).then(res => {
       if(res.ok) {
         return res.json()
@@ -67,9 +63,7 @@ export default function Page() {
   function clearPredictions() { 
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/instances/${params.nodeId}/metrics/all` ,{
       method : "DELETE" , 
-      headers : {
-        "Authorization" : `Bearer ${localStorage.getItem("token")}`
-      }
+      credentials : "include"
     }).then(res => {
       if(res.ok) {
         return res.json()

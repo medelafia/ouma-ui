@@ -10,16 +10,9 @@ export default function Page( {children} : { children : ReactNode }) {
   const router = useRouter()
 
   useEffect(() => {   
-    console.log(localStorage.getItem("token"))
-    if(localStorage.getItem("token") == null) { 
-      router.push("/")
-      return 
-    }
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/me` , 
       {
-        headers : {
-        "Authorization" : `Bearer ${localStorage.getItem("token")!}`
-        }
+        credentials : "include"
       }
     )
     .then(data => {

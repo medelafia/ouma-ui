@@ -21,9 +21,7 @@ export default function Page() {
 
     function fetchData(){
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/overview?from_date=${startDate?.toISOString()}` , {
-            headers : {
-                "Authorization" : `Bearer ${localStorage.getItem("token")!}`
-            }
+            credentials : "include"
         }) 
         .then(res => {
             console.log(res)

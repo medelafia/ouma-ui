@@ -41,9 +41,9 @@ export default function Alerts() {
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/incidents/` , {
           method : "POST" , 
           headers : { 
-            "Content-Type": "application/json" , 
-            "Authorization" : `Bearer ${localStorage.getItem("token")}`
+            "Content-Type": "application/json" 
           }, 
+          credentials : "include" ,
           body : JSON.stringify(request_body)
         })
         .then(res => {
