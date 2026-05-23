@@ -7,9 +7,6 @@ import { AlertCircleIcon, LayoutDashboard } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-
-
-
 export default function Page() { 
     const [error , setError] : any = useState(undefined) 
     const [kpis , setKpis] = useState(undefined)

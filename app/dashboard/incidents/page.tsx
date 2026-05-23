@@ -20,6 +20,16 @@ export default function Nodes() {
 
 
     return <div className="mx-8"> 
-            <CDataTable fetchUrl={`${process.env.NEXT_PUBLIC_API_URL}/api/v1/incidents/all`} columns={['Incident ID', 'Incident Time' , 'Incident Date' , 'description' , 'Alert']} idColumn="incident_id"/>
+            <CDataTable
+                title = {
+                    <BreadcrumbItem>
+                        <BreadcrumbLink asChild>
+                            <Link href="/dashboard/incidents" className="text-lg">Incidents</Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                }
+                fetchUrl={`${process.env.NEXT_PUBLIC_API_URL}/api/v1/incidents/all`} 
+                columns={['Incident ID', 'Incident Time' , 'Incident Date' , 'description' , 'Alert']} 
+                idColumn="incident_id"/>
     </div>; 
 }

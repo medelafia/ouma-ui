@@ -1,6 +1,7 @@
 "use client";
 
 import CDataTable from "@/components/c-data-table";
+import { BreadcrumbItem, BreadcrumbLink } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
@@ -9,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
+import { Edit, Eye } from "lucide-react";
+import Link from "next/link";
 import React, { useState } from "react";
 import { toast } from "sonner";
 
@@ -21,14 +24,22 @@ const columns = [
 
 export default function Alerts() {
     const [showIncidentDrawer , setShowIncidentDrawer] = useState(false)
+    const [showAlertInfoDrawer , setShowAlertInfoDrawer ] = useState(false)
     const [alertId , setAlertId ] = React.useState<string | undefined>()
     const [incidentDate, setIncidentDate] = React.useState<Date>()
     const [incidentTime, setIncidentTime] = useState("")
     const [incidentDescription , setIncidentDescription ] = useState("")
+    const [alertIdToShow , setAlertIdToShow] = React.useState<string | undefined >() 
+
     function createIncident(alertId : string) { 
         setShowIncidentDrawer(!showIncidentDrawer)
         setAlertId(alertId)
     }   
+
+    function showAlertInfo( alertId : string ) { 
+        setShowAlertInfoDrawer(!showAlertInfoDrawer) 
+        setAlertIdToShow(alertId)
+    }
     function saveIncident() { 
       if(alertId != undefined && incidentDate != undefined && incidentTime.trim() !== "" && incidentDescription.trim() !== "") { 
         const request_body = { 
@@ -78,14 +89,108 @@ export default function Alerts() {
     return <>
     <div className="mx-8"> 
       <CDataTable 
+          title = {
+            <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                    <Link href="/dashboard/alerts" className="text-lg">Alerts</Link>
+                </BreadcrumbLink>
+            </BreadcrumbItem>
+          }
           idColumn="alert_id"
           fetchUrl={`${process.env.NEXT_PUBLIC_API_URL}/api/v1/alerts/all`} 
           columns={columns}  
           actions={[
-              {title : "Create incident" , onClick : createIncident}
+              {title : "Create incident" , onClick : createIncident , icon : <Edit />} , 
+              { title : "Show Alert info" , onClick : showAlertInfo , icon: <Eye/>}
+          ]}
+          badgeColumns={[
+            { 
+              name : "Status" , 
+              mapping : {
+                "SEEN" : "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300" , 
+                "UNSEEN":  "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300"
+              } 
+            } , 
+            {
+              name : "Severity" , 
+              mapping : {
+                "LOW" : "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300" , 
+                "MEDUIM": "bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300",
+                "HIGH" : "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300", 
+              } 
+            }
           ]}
       />         
     </div>
+
+    <Drawer direction="right" open={showAlertInfoDrawer}>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>Create incident</DrawerTitle>
+          <DrawerDescription>enter the incident informarion in the form bellow.</DrawerDescription>
+        </DrawerHeader>
+        <div className="no-scrollbar overflow-y-auto px-4">
+          <Field>
+            <FieldLabel htmlFor="alert_id">Alert ID</FieldLabel>
+            <Input
+              id="alert_id"
+              placeholder="Alert Id"
+              required
+              name='alert_id'
+              value={alertId != undefined ? alertId : ""}
+              readOnly
+            />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="incident_date">Incident date</FieldLabel>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  id="incident_date"
+                  className="justify-start font-normal"
+                >
+                  {incidentDate ? format(incidentDate, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={incidentDate}
+                  onSelect={setIncidentDate}
+                  defaultMonth={incidentDate}
+                />
+              </PopoverContent>
+            </Popover>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="alert_id">Incident time</FieldLabel>
+            <Input
+              id="incident_time"
+              placeholder="Incident time"
+              required
+              name='incident_time'
+              type="time"
+              onChange={(value) => setIncidentTime(value.currentTarget.value)}
+            />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="alert_id">Incident description</FieldLabel>
+            <Textarea
+              placeholder="Incident description"
+              onChange={(value) => setIncidentDescription(value.currentTarget.value)}
+            />
+          </Field>
+        </div>
+        <DrawerFooter>
+          <Button onClick={saveIncident}>Submit</Button>
+          <DrawerClose asChild>
+            <Button variant="outline" onClick={() => setShowAlertInfoDrawer(false)}>Cancel</Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+        
     <Drawer direction="right" open={showIncidentDrawer}>
       <DrawerContent>
         <DrawerHeader>

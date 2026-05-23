@@ -15,6 +15,7 @@ import { Calendar } from "./ui/calendar";
 import { addDays, format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Badge } from "./ui/badge";
 
 
 
@@ -23,9 +24,11 @@ type Props = {
     idColumn: string , 
     columns : String[] ,  
     fetchUrl : String , 
-    actions? : {title : String , onClick : any }[]
+    actions? : {title : String , onClick : any ,  icon : any }[], 
+    badgeColumns? : {name : string , mapping : any}[] , 
+    title : React.ReactNode
 }
-export default function CDataTable({fetchUrl , columns , actions , idColumn} : Props) { 
+export default function CDataTable({fetchUrl , columns , actions , idColumn, badgeColumns , title } : Props) { 
     const [data , setData] : any = useState(undefined) 
     const [loading , setLoading] = useState(true)
     const [ error , setError] : any = useState(undefined)
@@ -36,7 +39,8 @@ export default function CDataTable({fetchUrl , columns , actions , idColumn} : P
         from: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()),
         to: addDays(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()), 2),
     })
-
+    const badgeColumnsNames = badgeColumns?.map(val => val.name )||[]
+    
     console.log(date)
     useEffect(() => { 
         console.log("fetching")
@@ -60,7 +64,9 @@ export default function CDataTable({fetchUrl , columns , actions , idColumn} : P
             setError(err.message)
             setLoading(false)
         })
+
         } , [date , currentPage , pageSize] )
+
     return (
         <>
         <div className="flex justify-between items-center">
@@ -72,11 +78,9 @@ export default function CDataTable({fetchUrl , columns , actions , idColumn} : P
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbLink asChild>
-                            <Link href="/dashboard/anomalies" className="text-lg">Anomalies</Link>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
+                    {
+                        title
+                    }
                 </BreadcrumbList>
             </Breadcrumb>
             <div className="flex">
@@ -179,19 +183,20 @@ export default function CDataTable({fetchUrl , columns , actions , idColumn} : P
                                         <TableRow key={key}>
                                             {
                                                 columns.map(
-                                                    (column , key) => (
-                                                        <TableCell className="font-medium" key={key}>{row[column.toLowerCase().replace(" " , "_")]}</TableCell>
-                                                    )
+                                                    (column , key) => 
+                                                        !badgeColumnsNames.includes(column.toString()) 
+                                                        ? <TableCell className='font-medium' key={key}>{row[column.toLowerCase().replace(" " , "_")]}</TableCell>
+                                                        : <TableCell className='font-medium' key={key}><Badge className={badgeColumns![badgeColumnsNames.indexOf(column.toString())].mapping[row[column.toLowerCase().replace(" " , "_")]]}>{row[column.toLowerCase().replace(" " , "_")]}</Badge></TableCell>
                                                 )
 
                                             }
 
                                             { actions != undefined &&<TableCell className="text-right">
                                                 <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild ><Button variant="ghost" size="icon" className="size-8"><MoreHorizontalIcon /><span className="sr-only">Open menu</span></Button></DropdownMenuTrigger>
+                                                    <DropdownMenuTrigger asChild ><Button variant="ghost" size="icon" className="size-8 "><MoreHorizontalIcon /><span className="sr-only">Open menu</span></Button></DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         { 
-                                                            actions!.map((element , key) => <DropdownMenuItem onClick={() => element.onClick(row[idColumn])}  key={key}>{element.title}</DropdownMenuItem>)
+                                                            actions!.map((element , key) => <DropdownMenuItem onClick={() => element.onClick(row[idColumn])}  key={key}>{element.icon}{element.title}</DropdownMenuItem>)
                                                             
                                                         }
                                                     </DropdownMenuContent>

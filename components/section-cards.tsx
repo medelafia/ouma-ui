@@ -1,112 +1,99 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { TrendingUpIcon, TrendingDownIcon } from "lucide-react"
+  Workflow,
+  Megaphone,
+  ServerCrash,
+  SearchAlert,
+  MoveUpRight,
+} from "lucide-react"
+import { Button } from "./ui/button"
+import Link from "next/link"
 
-export function SectionCards({kpis} : { kpis : any}) {
+export function SectionCards({ kpis }: { kpis: any }) {
+  const cards = [
+    {
+      title: "Total Nodes",
+      value: kpis.instances,
+      icon: Workflow,
+      color: "text-blue-500", 
+      href : "/dashboard/nodes"
+    },
+    {
+      title: "Total Alerts",
+      value: kpis.alerts.count,
+      icon: Megaphone,
+      color: "text-yellow-500",
+      href : "/dashboard/alerts"
+    },
+    {
+      title: "Total Incidents",
+      value: kpis.incidents.count,
+      icon: ServerCrash,
+      color: "text-red-500",
+      href : "/dashboard/incidents"
+    },
+    {
+      title: "Total Anomalies",
+      value: kpis.anomalies.count,
+      icon: SearchAlert,
+      color: "text-purple-500",
+      href : "/dashboard/anomalies"
+    },
+  ]
+
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total Nodes</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {kpis.instances}
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <TrendingUpIcon
-              />
-              +12.5%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        {/*<CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Trending up this month{" "}
-            <TrendingUpIcon className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Visitors for the last 6 months
-          </div>
-        </CardFooter>*/}
-      </Card>
+    <div className="grid grid-cols-1 gap-5 px-4 lg:px-6 xl:grid-cols-4 2xl:grid-cols-4">
+      {cards.map((card, idx) => {
+        const Icon = card.icon
 
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total Alerts</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {kpis.alerts.count}
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <TrendingDownIcon
+        return (
+          <Card
+            key={idx}
+            className="
+              relative overflow-hidden
+              border border-muted/40
+              bg-gradient-to-br from-background to-muted/30
+              shadow-sm
+              transition-all duration-300
+              hover:-translate-y-1 hover:shadow-lg
+            "
+          >
+            <CardHeader className="relative space-y-3">
+              <CardDescription className="text-sm text-muted-foreground">
+                {card.title}
+              </CardDescription>
+
+              <CardTitle className="text-3xl font-bold tracking-tight tabular-nums">
+                {card.value}
+              </CardTitle>
+
+              {/* icon background */}
+              <Icon
+                className={`absolute right-4 top-4 size-16 opacity-20 ${card.color}`}
               />
-              +20%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        {/*<CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Down 20% this period{" "}
-            <TrendingDownIcon className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Acquisition needs attention
-          </div>
-        </CardFooter>*/}
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total Incidents</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {kpis.incidents.count}
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <TrendingUpIcon
-              />
-              +12.5%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        {/*<CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Strong user retention{" "}
-            <TrendingUpIcon className="size-4" />
-          </div>
-          <div className="text-muted-foreground">Engagement exceed targets</div>
-        </CardFooter>*/}
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total Anomalies</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {kpis.anomalies.count}
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <TrendingUpIcon
-              />
-              +4.5%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        {/*<CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Steady performance increase{" "}
-            <TrendingUpIcon className="size-4" />
-          </div>
-          <div className="text-muted-foreground">Meets growth projections</div>
-        </CardFooter>*/}
-      </Card>
+            </CardHeader>
+
+            <div className="flex items-center justify-between px-6 pb-2">
+              <span className="text-xs text-muted-foreground">
+                Updated recently
+              </span>
+
+              <Link href={card.href}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1 text-xs"
+              >
+                Details
+                <MoveUpRight className="size-3" />
+              </Button>
+              </Link>
+            </div>
+          </Card>
+        )
+      })}
     </div>
   )
 }
