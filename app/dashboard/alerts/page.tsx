@@ -9,8 +9,9 @@ import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Edit, Eye } from "lucide-react";
+import { Edit, Eye, LoaderIcon } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
 import { toast } from "sonner";
@@ -21,6 +22,16 @@ const columns = [
     "Alert ID" , "Send Time", "Send Date" , "Status" , "Content" , "Severity" , "Anomaly ID"
 ]
 
+function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
+  return (
+    <LoaderIcon
+      role="status"
+      aria-label="Loading"
+      className={cn("size-4 animate-spin", className)}
+      {...props}
+    />
+  )
+}
 
 export default function Alerts() {
     const [showIncidentDrawer , setShowIncidentDrawer] = useState(false)
@@ -30,6 +41,7 @@ export default function Alerts() {
     const [incidentTime, setIncidentTime] = useState("")
     const [incidentDescription , setIncidentDescription ] = useState("")
     const [alertIdToShow , setAlertIdToShow] = React.useState<string | undefined >() 
+    const [ savingIncident , setSavingIncident ] = useState(false)
 
     function createIncident(alertId : string) { 
         setShowIncidentDrawer(!showIncidentDrawer)
@@ -41,6 +53,8 @@ export default function Alerts() {
         setAlertIdToShow(alertId)
     }
     function saveIncident() { 
+      if(savingIncident) return ; 
+      console.log("clicked")
       if(alertId != undefined && incidentDate != undefined && incidentTime.trim() !== "" && incidentDescription.trim() !== "") { 
         const request_body = { 
           "incident_date" : incidentDate.toISOString().split("T")[0] , 
@@ -64,6 +78,7 @@ export default function Alerts() {
         }) 
         .then(data => {
           if(data) { 
+            setSavingIncident(false)
             toast("Success", {
                 description: "Incident created successfully!",
                 action: {
@@ -74,6 +89,7 @@ export default function Alerts() {
           } 
         }) 
         .catch( (err : Error) => {
+          setSavingIncident(false)
           toast("Error", {
               description: "Failed to create incident!",
               action: {
@@ -82,6 +98,8 @@ export default function Alerts() {
               },
           })
         })
+      }else {
+        setSavingIncident(false)
       }
 
     }
@@ -126,7 +144,7 @@ export default function Alerts() {
     <Drawer direction="right" open={showAlertInfoDrawer}>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>Create incident</DrawerTitle>
+          <DrawerTitle>Alert details</DrawerTitle>
           <DrawerDescription>enter the incident informarion in the form bellow.</DrawerDescription>
         </DrawerHeader>
         <div className="no-scrollbar overflow-y-auto px-4">
@@ -251,7 +269,7 @@ export default function Alerts() {
           </Field>
         </div>
         <DrawerFooter>
-          <Button onClick={saveIncident}>Submit</Button>
+          <Button onClick={saveIncident} disabled={savingIncident}> { savingIncident && <Spinner />} Submit</Button>
           <DrawerClose asChild>
             <Button variant="outline" onClick={() => setShowIncidentDrawer(false)}>Cancel</Button>
           </DrawerClose>

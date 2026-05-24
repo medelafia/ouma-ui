@@ -8,17 +8,19 @@ import { DateRange } from "react-day-picker";
 import { Field } from "@/components/ui/field";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Trash } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 
 
 
 
+
+
+
 export default function Nodes() {
+    function deleteIncident() { 
 
-
-
-
+    }
     return <div className="mx-8"> 
             <CDataTable
                 title = {
@@ -30,6 +32,10 @@ export default function Nodes() {
                 }
                 fetchUrl={`${process.env.NEXT_PUBLIC_API_URL}/api/v1/incidents/all`} 
                 columns={['Incident ID', 'Incident Time' , 'Incident Date' , 'description' , 'Alert']} 
-                idColumn="incident_id"/>
+                idColumn="incident_id"
+                actions={[
+                    { title: "Delete" , onClick : deleteIncident , icon : <Trash />}
+                ]}
+                />
     </div>; 
 }

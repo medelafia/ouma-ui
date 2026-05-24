@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { CircleFadingPlusIcon, Plus, Save, XIcon } from "lucide-react";
+import { CircleFadingPlusIcon, Plus, Save, Trash, XIcon } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -226,10 +226,14 @@ export default function Settings() {
                                     <h4 className="mb-4 text-md leading-none font-bold">Emails</h4>
                                     <Button className="ms-2" onClick={()=>{setAddEmailDialog(prev => !prev)} }><Plus /></Button>
                                 </div>
+                                <Separator className="my-2"/>
                                 {emails!.map((tag) => (
-                                <React.Fragment key={tag} >
-                                    <div className="text-sm my-2">{tag}</div>
-                                </React.Fragment>
+                                    <React.Fragment key={tag} >
+                                        <div className="flex w-full justify-between">
+                                            <div className="text-sm my-2">{tag}</div>
+                                            <Button variant="ghost" className="text-red-500"><Trash /></Button>
+                                        </div>
+                                    </React.Fragment>
                                 ))}
                             </div>
                         </ScrollArea>

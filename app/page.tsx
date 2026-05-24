@@ -37,8 +37,7 @@ export default function Page() {
           return 
         }
       }).then(data=>{ 
-        if(data != undefined) {
-          localStorage.setItem("token" , data.access_token)
+        if(data != undefined && data['status'] == "success") {
           router.push("/dashboard")
         }
       }).catch((err: Error )=>{
