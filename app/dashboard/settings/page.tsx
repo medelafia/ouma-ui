@@ -123,6 +123,31 @@ export default function Settings() {
         })
     }
 
+    function deleteEmail(email: string) {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/metadata/emails/${email}`,{
+            credentials : "include", 
+            method : "DELETE"
+        }) 
+        .then(res => {
+            if(res.ok) { 
+                return res.json()
+            }
+        })
+        .then(data => {
+            if(data?.status == "success") { 
+                fetchEmails()
+                toast("Success", {
+                    description: "Emaid deleted successfully!",
+                    action: {
+                        label: "Undo",
+                        onClick: () => console.log("Undo"),
+                    },
+                })
+            }
+        })
+    }
+
+
     useEffect(()=>{
         fetchSettings()
         fetchEmails() 
@@ -246,7 +271,7 @@ export default function Settings() {
                                             <React.Fragment key={tag} >
                                                 <div className="flex w-full justify-between">
                                                     <div className="text-sm my-2">{tag}</div>
-                                                    <Button variant="ghost" className="text-red-500"><Trash /></Button>
+                                                    <Button variant="ghost" className="text-red-500" onClick={()=>deleteEmail(tag)}><Trash /></Button>
                                                 </div>
                                             </React.Fragment>
                                         ))}
