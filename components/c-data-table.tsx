@@ -40,10 +40,7 @@ export default function CDataTable({fetchUrl , columns , actions , idColumn, bad
         to: addDays(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()), 2),
     })
     const badgeColumnsNames = badgeColumns?.map(val => val.name )||[]
-    
-    console.log(date)
-    useEffect(() => { 
-        console.log("fetching")
+    function fetchData() {
         fetch(`${fetchUrl}?from_date=${date?.from?.toISOString()}&to=${date?.to?.toISOString()}&page=${currentPage}&size=${pageSize}`, {
             credentials : "include"
         })
@@ -64,8 +61,10 @@ export default function CDataTable({fetchUrl , columns , actions , idColumn, bad
             setError(err.message)
             setLoading(false)
         })
-
-        } , [date , currentPage , pageSize] )
+    }
+    useEffect(() => { 
+        fetchData()
+    } , [date , currentPage , pageSize] )
 
     return (
         <>
@@ -196,8 +195,16 @@ export default function CDataTable({fetchUrl , columns , actions , idColumn, bad
                                                     <DropdownMenuTrigger asChild ><Button variant="ghost" size="icon" className="size-8 "><MoreHorizontalIcon /><span className="sr-only">Open menu</span></Button></DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         { 
-                                                            actions!.map((element , key) => <DropdownMenuItem onClick={() => element.onClick(row[idColumn])}  key={key}>{element.icon}{element.title}</DropdownMenuItem>)
-                                                            
+                                                            actions!.map((element , key) => (
+                                                                <DropdownMenuItem 
+                                                                    onClick={
+                                                                        () => { 
+                                                                            element.onClick(row[idColumn]) 
+                                                                            fetchData()
+                                                                        }
+                                                                    }  
+                                                                    key={key}>{element.icon}{element.title}</DropdownMenuItem>
+                                                            ))                     
                                                         }
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>

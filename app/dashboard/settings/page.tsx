@@ -3,11 +3,13 @@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { CircleFadingPlusIcon, Plus, Save, Trash, XIcon } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppWindowIcon, Bell, CircleFadingPlusIcon, CodeIcon, Plus, Save, SaveIcon, ServerCog, Settings2, Trash, UserPlus, XIcon } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -24,6 +26,7 @@ export default function Settings() {
     const emailToSaveRef = useRef(null)
     const [emails , setEmails ] = useState([])
     const [addEmailDialog , setAddEmailDialog] = useState(false)
+    const [addEmailError , setAddEmailError] = React.useState<string | undefined>(undefined)
 
     function handleSave() {
         if(settings.TARGET_SERVER_HOST.trim() == "" ) { 
@@ -37,7 +40,6 @@ export default function Settings() {
             })
             return 
         }
-        console.log(settings)
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/metadata/update` , {
             headers : {
                 "Content-Type" : "application/json"
@@ -69,24 +71,25 @@ export default function Settings() {
                 credentials : "include" ,
                 method : "POST"
             }).then(res => {
-                if(res.ok) {
-                    console.log(res)
-                    return res.json() 
+                if (!res.ok) {
+                    throw new Error("Failed to add email");
                 }
+                return res.json()
             }).then(data => {
-                if(data != undefined ) {
-                    toast("Success", {
-                        description: "Emaid Added successfully!",
-                        action: {
-                            label: "Undo",
-                            onClick: () => console.log("Undo"),
-                        },
-                    })
-                }
+                setAddEmailDialog(false)
+                toast("Success", {
+                    description: "Emaid Added successfully!",
+                    action: {
+                        label: "Undo",
+                        onClick: () => console.log("Undo"),
+                    },
+                })
+                fetchEmails()
+            }).catch((err : Error) => {
+                setAddEmailError(err.message)
             })
             
         }
-        console.log("email saved" , )
     }
 
     function fetchEmails() { 
@@ -100,7 +103,6 @@ export default function Settings() {
         })
         .then(data => {
             if(data != undefined) {
-                console.log(data) 
                 setEmails(data)
             }
         })
@@ -116,7 +118,6 @@ export default function Settings() {
         })
         .then(data => {
             if(data != undefined) {
-                console.log(data) 
                 setSettings(data)
             }
         })
@@ -145,141 +146,159 @@ export default function Settings() {
                 </BreadcrumbList>
             </Breadcrumb>
         </div>
-        <div className="mt-6">
-            <div className="my-4">
-                <h2 className="font-bold text-2xl my-2">Server settings</h2>
-                <div className="flex justify-between my-4">
-                    <div>
-                        <label htmlFor="input-demo-disabled" className="font-bold">Target Ip Address</label>
-                        <p className="text-foreground text-gray-500">Ip address of target monitoring server (ex. 152.19.173.1)</p>
-                    </div>
-                    <Input 
-                        className="w-100"
-                        id="input-demo-disabled"
-                        type="email"
-                        placeholder="Ip address"
-                        value={settings['TARGET_SERVER_HOST']}
-                        onChange={(e)=>{
-                            setSettings({...settings , TARGET_SERVER_HOST : e.currentTarget.value})
-                        }}
-                        disabled
-                    />
-                </div>
-                <div className="flex justify-between my-2">
-                    <label htmlFor="input-demo-disabled" className="font-bold">Target server port</label>
-                    <Input
-                        className="w-100"
-                        id="input-demo-disabled"
-                        type="number"
-                        placeholder="target port"
-                        value={settings['TARGET_SERVER_PORT']}
-                        min="9000"
-                        max="10000"
-                        onChange={(e)=>{
-                            setSettings({...settings , TARGET_SERVER_PORT : Number.parseInt(e.currentTarget.value)})
-                        }}
-                        disabled
-                    />
-                </div>
-                <div className="flex justify-between my-2">
-                    <label htmlFor="input-demo-disabled" className="font-bold">Prediction interval</label>
-                    <Input
-                        className="w-100"
-                        id="input-demo-disabled"
-                        type="number"
-                        min="1"
-                        max="10"
-                        placeholder="prediction interval"
-                        value={settings['PREDICTION_INTERVAL']}
-                        onChange={(e)=>{
-                            setSettings({...settings , PREDICTION_INTERVAL : Number.parseInt(e.currentTarget.value)})
-                        }}
-                    />
-                </div>
-            </div>
-            <Separator  />
-            <div className="my-4 py-3">
-                
-                <h2 className="font-bold text-2xl">Alerting settings</h2>
-                <div className="flex justify-between my-4">
-                    <div>
-                        <label htmlFor="input-demo-disabled" className="font-bold">Activate Email Alerting</label>
-                        <p className="text-foreground text-gray-500">By clicking in this button you dont be able to receive alerts on email</p>
-                    </div>
-                    <Switch 
-                        id="switch-size-sm" 
-                        checked={settings['ACTIVATE_EMAIL_ALERTING'] }  
-                        onClick={(e) => { 
-                            setSettings({...settings, ACTIVATE_EMAIL_ALERTING : !settings['ACTIVATE_EMAIL_ALERTING']})
-                        }}
-                        />
-                </div>
-                { settings['ACTIVATE_EMAIL_ALERTING'] && <div className="flex justify-between my-4">
-                    <div>
-                        <label htmlFor="input-demo-disabled" className="font-bold">Emails</label>
-                        <p className="text-foreground text-gray-500">Those emails used to send alerts if an anomaly detected</p>
-                    </div>
-                    <div className="flex">
-                        <ScrollArea className="h-30 w-80 rounded-md border">
-                            <div className="p-4">
-                                <div className="w-full flex justify-between items-center">
-                                    <h4 className="mb-4 text-md leading-none font-bold">Emails</h4>
-                                    <Button className="ms-2" onClick={()=>{setAddEmailDialog(prev => !prev)} }><Plus /></Button>
-                                </div>
-                                <Separator className="my-2"/>
-                                {emails!.map((tag) => (
-                                    <React.Fragment key={tag} >
-                                        <div className="flex w-full justify-between">
-                                            <div className="text-sm my-2">{tag}</div>
-                                            <Button variant="ghost" className="text-red-500"><Trash /></Button>
-                                        </div>
-                                    </React.Fragment>
-                                ))}
+         <Tabs defaultValue="genral">
+            <TabsList className="my-4" variant="line">
+                <TabsTrigger value="genral"><Settings2 />Server settings</TabsTrigger>
+                <TabsTrigger value="alerting"><Bell />Alerting settings</TabsTrigger>
+            </TabsList>
+            <TabsContent value="genral">
+                <Card className="p-4">
+                    <CardHeader>
+                        <CardTitle className="font-bold text-2xl flex items-center"><ServerCog className="me-2"/>Server settings</CardTitle>
+                        <CardDescription>Here you can change alerting settings</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex justify-between my-4">
+                            <div>
+                                <label htmlFor="input-demo-disabled" className="font-bold">Target Ip Address</label>
+                                <p className="text-foreground text-gray-500">Ip address of target monitoring server (ex. 152.19.173.1)</p>
                             </div>
-                        </ScrollArea>
-                    
-                        <AlertDialog open={addEmailDialog}>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogMedia>
-                                        <CircleFadingPlusIcon />
-                                    </AlertDialogMedia>
-                                    <AlertDialogTitle>Save new email</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        Add new email for alerting when anomaly detected
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                
-                                <Input
-                                    id="input-demo-disabled"
-                                    type="email"
-                                    placeholder="Emails"    
-                                    ref={emailToSaveRef}       
+                            <Input 
+                                className="w-100"
+                                id="input-demo-disabled"
+                                type="email"
+                                placeholder="Ip address"
+                                value={settings['TARGET_SERVER_HOST']}
+                                onChange={(e)=>{
+                                    setSettings({...settings , TARGET_SERVER_HOST : e.currentTarget.value})
+                                }}
+                                disabled
+                            />
+                        </div>
+                        <div className="flex justify-between my-2">
+                            <label htmlFor="input-demo-disabled" className="font-bold">Target server port</label>
+                            <Input
+                                className="w-100"
+                                id="input-demo-disabled"
+                                type="number"
+                                placeholder="target port"
+                                value={settings['TARGET_SERVER_PORT']}
+                                min="9000"
+                                max="10000"
+                                onChange={(e)=>{
+                                    setSettings({...settings , TARGET_SERVER_PORT : Number.parseInt(e.currentTarget.value)})
+                                }}
+                                disabled
+                            />
+                        </div>
+                        <div className="flex justify-between my-2">
+                            <label htmlFor="input-demo-disabled" className="font-bold">Prediction interval</label>
+                            <Input
+                                className="w-100"
+                                id="input-demo-disabled"
+                                type="number"
+                                min="1"
+                                max="10"
+                                placeholder="prediction interval"
+                                value={settings['PREDICTION_INTERVAL']}
+                                onChange={(e)=>{
+                                    setSettings({...settings , PREDICTION_INTERVAL : Number.parseInt(e.currentTarget.value)})
+                                }}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>    
+            </TabsContent>
+            <TabsContent value="alerting">
+                <Card className="p-4">
+                    <CardHeader>
+                        <CardTitle className="font-bold text-2xl flex items-center"><Bell className="me-2"/>Alerting settings</CardTitle>
+                        <CardDescription>Here you can change alerting settings</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex justify-between my-4">
+                            <div>
+                                <label htmlFor="input-demo-disabled" className="font-bold">Activate Email Alerting</label>
+                                <p className="text-foreground text-gray-500">By clicking in this button you dont be able to receive alerts on email</p>
+                            </div>
+                            <Switch 
+                                id="switch-size-sm" 
+                                checked={settings['ACTIVATE_EMAIL_ALERTING'] }  
+                                onClick={(e) => { 
+                                    setSettings({...settings, ACTIVATE_EMAIL_ALERTING : !settings['ACTIVATE_EMAIL_ALERTING']})
+                                }}
                                 />
-                                <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={saveNewEmail}>Save</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    </div>
+                        </div>
+                        { settings['ACTIVATE_EMAIL_ALERTING'] && <div className="flex justify-between my-4">
+                            <div>
+                                <label htmlFor="input-demo-disabled" className="font-bold">Emails</label>
+                                <p className="text-foreground text-gray-500">Those emails used to send alerts if an anomaly detected</p>
+                            </div>
+                            <div className="flex">
+                                <ScrollArea className="h-30 w-80 rounded-md border">
+                                    <div className="p-4">
+                                        <div className="w-full flex justify-between items-center">
+                                            <h4 className="mb-4 text-md leading-none font-bold">Emails</h4>
+                                            <Button variant="destructive" className="ms-2" onClick={()=>{setAddEmailDialog(prev => !prev)} }><UserPlus /></Button>
+                                        </div>
+                                        <Separator className="my-2"/>
+                                        {emails!.map((tag) => (
+                                            <React.Fragment key={tag} >
+                                                <div className="flex w-full justify-between">
+                                                    <div className="text-sm my-2">{tag}</div>
+                                                    <Button variant="ghost" className="text-red-500"><Trash /></Button>
+                                                </div>
+                                            </React.Fragment>
+                                        ))}
+                                    </div>
+                                </ScrollArea>
+                            
+                                <AlertDialog open={addEmailDialog}>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogMedia>
+                                                <CircleFadingPlusIcon />
+                                            </AlertDialogMedia>
+                                            <AlertDialogTitle>Save new email</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Add new email for alerting when anomaly detected
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        { addEmailError != undefined && <div className="text-red-400">{addEmailError}</div> } 
+                                        <Input
+                                            id="input-demo-disabled"
+                                            type="email"
+                                            placeholder="Emails"    
+                                            ref={emailToSaveRef}       
+                                        />
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel onClick={()=> setAddEmailDialog(false)}>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={saveNewEmail}><SaveIcon/> Save</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
 
-                </div>}
-                <div className="flex justify-between my-4">
-                    <div>
-                        <label htmlFor="input-demo-disabled" className="font-bold">Activate Slack Alerting</label>
-                        <p className="text-foreground text-gray-500">By clicking in this button you dont be able to receive alerts on slack</p>
-                    </div>
-                    <Switch 
-                        id="switch-size-sm" 
-                        checked={settings['ACTIVATE_SLACK_ALERTING'] }  
-                        onClick={(e) => { 
-                            setSettings({...settings, ACTIVATE_SLACK_ALERTING : !settings['ACTIVATE_SLACK_ALERTING']})
-                        }}
-                        />
-                </div>
-            </div>
+                        </div>}
+                        <div className="flex justify-between my-4">
+                            <div>
+                                <label htmlFor="input-demo-disabled" className="font-bold">Activate Slack Alerting</label>
+                                <p className="text-foreground text-gray-500">By clicking in this button you dont be able to receive alerts on slack</p>
+                            </div>
+                            <Switch 
+                                id="switch-size-sm" 
+                                checked={settings['ACTIVATE_SLACK_ALERTING'] }  
+                                onClick={(e) => { 
+                                    setSettings({...settings, ACTIVATE_SLACK_ALERTING : !settings['ACTIVATE_SLACK_ALERTING']})
+                                }}
+                                />
+                        </div>
+                    </CardContent>
+                </Card>
+            </TabsContent>
 
+        </Tabs>
+        <div className="mt-6">
             <div className="flex justify-end">
                 <Button variant="outline" size="lg">
                     <XIcon></XIcon>
