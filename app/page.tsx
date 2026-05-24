@@ -2,17 +2,30 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { AlertCircleIcon, TowerControl } from 'lucide-react'
+import { AlertCircleIcon, LoaderIcon, TowerControl } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
- 
+ import { cn } from "@/lib/utils"
+function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
+  return (
+    <LoaderIcon
+      role="status"
+      aria-label="Loading"
+      className={cn("size-4 animate-spin", className)}
+      {...props}
+    />
+  )
+}
 export default function Page() {
   const router = useRouter()
   const [ error , setError ] = useState("")
+  const  [loading , setLoading] = useState(false)
+
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    setLoading(true)
     setError("")
     event.preventDefault()
  
@@ -22,33 +35,38 @@ export default function Page() {
     if(username?.toString().trim() == "" || password?.toString().trim() == "") { 
       setError("The username or password should be not empty") 
       return 
-    }else { 
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/token` , {
-        method : "POST" ,
-        body : formData , 
-        credentials : "include"
-      })
-      .then(res => {
-        if(res.ok) {
-          console.log(res)
-          return res.json()
-        } else if(res.status == 400) {
-          setError("Username or password not correct")
-          return 
-        }
-      }).then(data=>{ 
-        if(data != undefined && data['status'] == "success") {
-          router.push("/dashboard")
-        }
-      }).catch((err: Error )=>{
-        setError(err.message)
-      })
     }
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/token` , {
+      method : "POST" ,
+      body : formData , 
+      credentials : "include"
+    })
+    .then(res => {
+      if(!res.ok) {
+        setLoading(false)
+        setError("Username or password not correct")
+        return 
+      } 
+      return res.json()
+    }).then(data=>{ 
+      if(data != undefined && data['status'] == "success") {
+        setLoading(false)
+        router.push("/dashboard")
+      }
+    })
+    
   }
   useEffect( () => {
-    if(localStorage.getItem("token")) { 
-      router.push("/dashboard")
-    }
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/me` , 
+      {
+        credentials : "include"
+      }
+    )
+    .then(data => {
+      if(data.status == 200) { 
+        router.push("/dashboard")
+      }
+    })
   },[])
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
@@ -100,7 +118,7 @@ export default function Page() {
                     <Input id="password" type="password" required name='password' />
                   </Field>
                   <Field>
-                    <Button type="submit">Login</Button>
+                    <Button type="submit" disabled={loading}>{loading && <Spinner/>}Login</Button>
                   </Field>
                 </FieldGroup>
               </form>
