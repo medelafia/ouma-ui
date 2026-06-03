@@ -25,15 +25,15 @@ const badgeColumns = [
   { 
     name : "Status" , 
     mapping : {
-      "SEEN" : "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300" , 
-      "UNSEEN":  "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300"
+      "SEEN" : "bg-green-50/10 text-green-700 dark:bg-green-950 dark:text-green-300 border-green-600" , 
+      "UNSEEN":  "bg-red-900/10 text-red-700 dark:bg-red-950 dark:text-red-300 border-red-900"
     } 
   } , 
   {
     name : "Severity" , 
     mapping : {
-      "LOW" : "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300" , 
-      "MEDUIM": "bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300",
+      "LOW" : "bg-green-50/10 text-green-700 dark:bg-green-950 dark:text-green-300 border-green-600" , 
+      "MEDUIM": "border-yellow-500 text-yellow-700 bg-yellow-500/10 text-yellow-300",
       "HIGH" : "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300", 
     } 
   }

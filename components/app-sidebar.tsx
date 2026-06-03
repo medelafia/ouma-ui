@@ -16,118 +16,11 @@ import {
 } from "@/components/ui/sidebar"
 import { LayoutDashboardIcon,TowerControl, CameraIcon, FileTextIcon, Settings2Icon, CircleHelpIcon, SearchIcon, DatabaseIcon, FileChartColumnIcon, FileIcon, CommandIcon, Workflow, OctagonAlert, ServerCrash, SearchAlert } from "lucide-react"
 
-const data = {
 
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: (
-        <LayoutDashboardIcon
-        />
-      ),
-    },
-    {
-      title: "Nodes",
-      url: "/dashboard/nodes",
-      icon: (
-        <Workflow />
-      )
-    },
-    {
-      title : "Alerts" , 
-      url: "/dashboard/alerts" , 
-      icon : (
-        <OctagonAlert />
-      )
-    } , 
-    {
-      title : "Incidents" , 
-      url : "/dashboard/incidents" , 
-      icon : (
-        <ServerCrash />
-      )
-    },
-    {
-      title : "Anomalies" , 
-      url : "/dashboard/anomalies" , 
-      icon : (
-        <SearchAlert />
-      )
-    }
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: (
-        <CameraIcon
-        />
-      ),
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: (
-        <FileTextIcon
-        />
-      ),
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: (
-        <FileTextIcon
-        />
-      ),
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "/dashboard/settings",
-      icon: (
-        <Settings2Icon
-        />
-      ),
-    }
-  ]
-}
-
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ navMain , navSecondary , variant }: {navMain : any, navSecondary : any , variant : string }) {
+  
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="offcanvas" >
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -144,8 +37,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={navMain} />
+        <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser  />
