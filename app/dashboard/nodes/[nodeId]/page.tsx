@@ -1,5 +1,6 @@
 "use client";
 import PredictionCharts from "@/components/prediction-charts";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -171,7 +172,24 @@ export default function Page() {
               <Button variant="outline" onClick={() => {setStartDateByHours(3)}}>Last 3 hours</Button>
               <Button variant="outline" onClick={() => {setStartDateByHours(1)}}>Last 1 hour</Button>
             </ButtonGroup>
-            <Button onClick={clearPredictions} className="ms-2" variant="destructive"><Trash/> clear</Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button className="ms-2" variant="destructive"><Trash/>Clear</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete all histories
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={clearPredictions}>Continue</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            
           </div>
         </div>
         <div className="my-4 grid grid-cols-1 gap-4 mx-6 md:grid-cols-2">

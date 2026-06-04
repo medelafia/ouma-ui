@@ -4,12 +4,13 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AppWindowIcon, Bell, CircleFadingPlusIcon, CodeIcon, Plus, Save, SaveIcon, ServerCog, Settings2, Trash, UserPlus, XIcon } from "lucide-react";
+import { AppWindowIcon, ArrowUpRight, Bell, CircleFadingPlusIcon, CodeIcon, Plus, Route, Save, SaveIcon, ServerCog, Settings2, Trash, UserPlus, XIcon } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -27,6 +28,7 @@ export default function Settings() {
     const [emails , setEmails ] = useState([])
     const [addEmailDialog , setAddEmailDialog] = useState(false)
     const [addEmailError , setAddEmailError] = React.useState<string | undefined>(undefined)
+    const [activateActions , setActivateActions] = useState(false)
 
     function handleSave() {
         if(settings.TARGET_SERVER_HOST.trim() == "" ) { 
@@ -84,7 +86,7 @@ export default function Settings() {
                         onClick: () => console.log("Undo"),
                     },
                 })
-                fetchEmails()
+                setEmails(prev => [emailToSaveRef.current!['value'] , ...prev])
             }).catch((err : Error) => {
                 setAddEmailError(err.message)
             })
@@ -175,6 +177,7 @@ export default function Settings() {
             <TabsList className="my-4" variant="line">
                 <TabsTrigger value="genral"><Settings2 />Server settings</TabsTrigger>
                 <TabsTrigger value="alerting"><Bell />Alerting settings</TabsTrigger>
+                <TabsTrigger value="actions"><Route />Actions settings</TabsTrigger>
             </TabsList>
             <TabsContent value="genral">
                 <Card className="p-4">
@@ -260,24 +263,40 @@ export default function Settings() {
                                 <p className="text-foreground text-gray-500">Those emails used to send alerts if an anomaly detected</p>
                             </div>
                             <div className="flex">
-                                <ScrollArea className="h-30 w-80 rounded-md border">
-                                    <div className="p-4">
-                                        <div className="w-full flex justify-between items-center">
-                                            <h4 className="mb-4 text-md leading-none font-bold">Emails</h4>
-                                            <Button variant="destructive" className="ms-2" onClick={()=>{setAddEmailDialog(prev => !prev)} }><UserPlus /></Button>
+                                <Drawer direction="right">
+                                    <DrawerTrigger asChild>
+                                        <Button variant="outline" className="capitalize">
+                                            <ArrowUpRight />
+                                            show emails
+                                        </Button>
+                                    </DrawerTrigger>
+                                    <DrawerContent className="data-[vaul-drawer-direction=bottom]:max-h-[50vh] data-[vaul-drawer-direction=top]:max-h-[50vh]">
+                                        <DrawerHeader>
+                                            <DrawerTitle className="text-xl font-bold">Emails</DrawerTitle>
+                                            <DrawerDescription>
+                                                Set all emails to send alerts if an anomaly detected
+                                            </DrawerDescription>
+                                        </DrawerHeader>
+                                        <div className="no-scrollbar overflow-y-auto px-4">
+                                            {emails!.map((tag) => (
+                                                <React.Fragment key={tag} >
+                                                    <div className="flex w-full justify-between">
+                                                        <div className="text-sm my-2">{tag}</div>
+                                                        <Button variant="ghost" className="text-red-500" onClick={()=>deleteEmail(tag)}><Trash /></Button>
+                                                    </div>
+                                                </React.Fragment>
+                                            ))}
+                                            <Separator className="my-2"/>
+                                            <Button variant="destructive" className="mt-2 w-full" onClick={()=>{setAddEmailDialog(prev => !prev)} }><UserPlus /></Button>
                                         </div>
-                                        <Separator className="my-2"/>
-                                        {emails!.map((tag) => (
-                                            <React.Fragment key={tag} >
-                                                <div className="flex w-full justify-between">
-                                                    <div className="text-sm my-2">{tag}</div>
-                                                    <Button variant="ghost" className="text-red-500" onClick={()=>deleteEmail(tag)}><Trash /></Button>
-                                                </div>
-                                            </React.Fragment>
-                                        ))}
-                                    </div>
-                                </ScrollArea>
-                            
+                                        <DrawerFooter>
+                                            <DrawerClose asChild>
+                                                <Button variant="outline">Cancel</Button>
+                                            </DrawerClose>
+                                        </DrawerFooter>
+                                    </DrawerContent>
+                                </Drawer>
+
                                 <AlertDialog open={addEmailDialog}>
                                     <AlertDialogContent>
                                         <AlertDialogHeader>
@@ -318,6 +337,86 @@ export default function Settings() {
                                 }}
                                 />
                         </div>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+            <TabsContent value="actions">
+                <Card className="p-4">
+                    <CardHeader>
+                        <CardTitle className="font-bold text-2xl flex items-center"><Route className="me-2"/>Actions settings</CardTitle>
+                        <CardDescription>Here you can change actions settings</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex justify-between my-4">
+                            <div>
+                                <label htmlFor="input-demo-disabled" className="font-bold">Activate actions</label>
+                                <p className="text-foreground text-gray-500">By clicking in this button the system will be able to trigger actions if anomaly detected</p>
+                            </div>
+                            <Switch 
+                                id="switch-size-sm" 
+                                checked={activateActions}  
+                                onClick={(e) => { 
+                                    setActivateActions(prev => !prev)
+                                }}
+                                />
+                        </div>
+                        {
+                            activateActions &&
+                            <>
+                                <div className="flex justify-between my-2">
+                                    <label htmlFor="input-demo-disabled" className="font-bold">Number of alerts neccessary to trigger actions</label>
+                                    <Input
+                                        className="w-100"
+                                        id="alerts-count-disabled"
+                                        type="number"
+                                        placeholder="alert count to trigger actions"
+                                        min="1"
+                                        max="5"
+                                    />
+                                </div>
+                                <div className="flex justify-between my-4">
+                                    <div>
+                                        <label htmlFor="input-demo-disabled" className="font-bold">Restart unhealthy pods</label>
+                                        <p className="text-foreground text-gray-500">By clicking in this button the system will be able to restart all unhealthy pods if an anomaly detected</p>
+                                    </div>
+                                    <Switch 
+                                        id="switch-size-sm" 
+                                        checked={activateActions}  
+                                        onClick={(e) => { 
+                                            setActivateActions(prev => !prev)
+                                        }}
+                                        />
+                                </div>
+                                <div className="flex justify-between my-4">
+                                    <div>
+                                        <label htmlFor="input-demo-disabled" className="font-bold">Increase replicas</label>
+                                        <p className="text-foreground text-gray-500">By clicking in this button the system will be able to increase deployments replicas if anomaly detected</p>
+                                    </div>
+                                    <Switch 
+                                        id="switch-size-sm" 
+                                        checked={activateActions}  
+                                        onClick={(e) => { 
+                                            setActivateActions(prev => !prev)
+                                        }}
+                                        />
+                                </div>
+                                 <div className="flex justify-between my-4">
+                                    <div>
+                                        <label htmlFor="input-demo-disabled" className="font-bold">Target namespace</label>
+                                        <p className="text-foreground text-gray-500">Precise the namespace which you want to trigger actions</p>
+                                    </div>
+                                    <Input 
+                                        className="w-100"
+                                        id="namespace"
+                                        type="text"
+                                        placeholder="Target namespace"
+                                        defaultValue={"default"}
+                                    />
+                                </div>
+                                
+                            
+                            </>
+                        }
                     </CardContent>
                 </Card>
             </TabsContent>
